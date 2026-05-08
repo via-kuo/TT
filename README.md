@@ -1,0 +1,1 @@
+這是我們學校遠端電腦的架設環境，包含 Llama 3, Whisper, GPT-SoVITS。 
