@@ -45,3 +45,6 @@ models/
 **/UserSettings/
 **/obj/
 **/.DS_Store
+**/__MACOSX/
+**/ProjectSettings/EditorBuildSettings.asset
+**/ProjectSettings/ShaderGraphSettings.asset
