@@ -110,9 +110,11 @@
     <Compile Include="Assets\K2Examples\KinectScripts\AvatarControllerClassic.cs" />
     <Compile Include="Assets\Scenes\Scripts\LoginFailController.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\MultiScene\LoadLevelWithDelay.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Kinect\KinectSkeletonSender.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\Kinect2Interface.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Samples\JointPositionView.cs" />
     <Compile Include="Assets\Scenes\Scripts\TextLineDrawer.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Kinect\KinectAudioSender.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\InteractionInputModule.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Samples\SimpleBackgroundRemoval.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Filters\BoneOrientationsConstraint.cs" />
@@ -121,6 +123,7 @@
     <Compile Include="Assets\K2Examples\KinectScripts\BackgroundRemovalManager.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Samples\FollowUserRotation.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\OrbbecAstraMapper.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Kinect\KinectEmotionSender.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\Filters\JointPositionsFilter.cs" />
     <Compile Include="Assets\K2Examples\KinectScripts\HeadMover.cs" />
   </ItemGroup>

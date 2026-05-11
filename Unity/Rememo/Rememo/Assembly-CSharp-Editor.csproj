@@ -684,6 +684,10 @@
       <HintPath>Assets\K2Examples\KinectScripts\Interfaces\Nuitrack\nuitrack.net.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\K2Examples\Plugins\websocket-sharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="mscorlib">
       <HintPath>C:\Program Files\Unity\Hub\Editor\6000.4.1f1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\mscorlib.dll</HintPath>
       <Private>False</Private>
