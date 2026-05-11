@@ -43,7 +43,7 @@ public class MicVisualizer : MonoBehaviour
         for (int x = 0; x < textureWidth; x++)
         {
             float sample = samples[x];
-            int centerY = textureHeight / 2;
+            int centerY = Mathf.RoundToInt(textureHeight / 2.35f);
             int waveHeight = Mathf.RoundToInt(sample * textureHeight * 2f);
 
             int startY = Mathf.Clamp(centerY - Mathf.Abs(waveHeight), 0, textureHeight - 1);
