@@ -49,3 +49,23 @@ models/
 **/ProjectSettings/EditorBuildSettings.asset
 **/ProjectSettings/ShaderGraphSettings.asset
 
+## Kinect v2 SDK（RF Solutions 版權）
+
+# unitypackage 本體
+*.unitypackage
+
+# SDK 原始資料夾（若放在專案根目錄）
+Kinect-v2-with-MS-SDK*/
+
+# Unity 內的 Kinect 相關資料夾
+**/Assets/K2Examples/KinectScripts/
+**/Assets/K2Examples/Resources/
+**/Assets/K2Examples/Plugins/
+
+# Kinect meta 檔案
+**/Assets/K2Examples.meta
+**/Assets/K2Examples/KinectScripts.meta
+**/Assets/K2Examples/Plugins.meta
+**/Assets/K2Examples/Resources.meta
+
+
