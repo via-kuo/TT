@@ -75,3 +75,7 @@ Kinect-v2-with-MS-SDK*/
 **/Rememo/NuiDatabase/
 **/Rememo/OpenNI2/
 **/Rememo/vgbtechs/
+
+# Unity 自動產生
+**/Rememo/Assembly-CSharp.csproj
+**/Rememo/Assembly-CSharp-Editor.csproj
