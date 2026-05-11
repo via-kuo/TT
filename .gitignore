@@ -68,4 +68,10 @@ Kinect-v2-with-MS-SDK*/
 **/Assets/K2Examples/Plugins.meta
 **/Assets/K2Examples/Resources.meta
 
-
+# Kinect SDK 執行時期 DLL（在專案根目錄）
+**/Rememo/*.dll
+**/Rememo/*.ini
+**/Rememo/*.data
+**/Rememo/NuiDatabase/
+**/Rememo/OpenNI2/
+**/Rememo/vgbtechs/
