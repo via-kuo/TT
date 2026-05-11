@@ -49,48 +49,145 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.1f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\K2Examples\KinectScripts\MultiScene\LoadLevelWhenUserDetected.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\NuitrackInterface.cs" />
     <Compile Include="Assets\Scenes\Scripts\SpeechTextHandler.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\KinectRecorderPlayer.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\SpeechErrorHandler.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\RaiseHandListener.cs" />
     <Compile Include="Assets\Scenes\Scripts\LoadingSpinner.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\FacetrackingManager.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\OrbbecAstraInterface.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\JointAngleCalculator.cs" />
     <Compile Include="Assets\Scenes\Scripts\MicVisualizer.cs" />
     <Compile Include="Assets\Scenes\Scripts\LoadingSpinner1.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\AvatarScaler.cs" />
     <Compile Include="Assets\Scenes\Scripts\ShareController.cs" />
     <Compile Include="Assets\Scenes\Scripts\ThankYouController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\SpeechManager.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\Kinect1Interface.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\SequentialGestureListener.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Cubeman\PointmanController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\GetJointPositionDemo.cs" />
     <Compile Include="Assets\Scenes\Scripts\WarmupController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\KinectInterop.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\ForegroundBlender.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Cubeman\CubemanController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\GetFaceSmileStatus.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\KinectManager.cs" />
     <Compile Include="Assets\Scenes\Scripts\LoginScreenController.cs" />
     <Compile Include="Assets\Scenes\Scripts\UserSelectController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\CameraRollFixer.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\SimplePoseListener.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\MouseControl.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\Nuitrack\NuitrackLoader.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\MultiScene\LoadFirstLevel.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\DepthSensorInterface.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\DummyK2Interface.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\K2SensorChecker.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\MultiScene\LoadLevelWhenNoUser.cs" />
     <Compile Include="Assets\Scenes\Scripts\LoadingController.cs" />
     <Compile Include="Assets\Scenes\Scripts\GameController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\BodySlicer.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\AvatarController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Filters\JointVelocitiesFilter.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\InteractionManager.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\VisualGestureManager.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\PortraitBackground.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\GetFacePointsDemo.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\BackgroundUserImage.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\SimpleGestureListener.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\KinectGestures.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Scenes\Scripts\MicController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Utilities\AsyncTask.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\JointOrientationView.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\Nuitrack\NuitrackFaceInfo.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\BackgroundColorImage.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\SimpleInteractionListener.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\MultiScene\LocateAvatarsAndGestureListeners.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\PointCloudView.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\AvatarControllerClassic.cs" />
     <Compile Include="Assets\Scenes\Scripts\LoginFailController.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\MultiScene\LoadLevelWithDelay.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Kinect\KinectSkeletonSender.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\Kinect2Interface.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\JointPositionView.cs" />
     <Compile Include="Assets\Scenes\Scripts\TextLineDrawer.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Kinect\KinectAudioSender.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\InteractionInputModule.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\SimpleBackgroundRemoval.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Filters\BoneOrientationsConstraint.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\SimpleVisualGestureListener.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\Kinect2UwpInterface.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\BackgroundRemovalManager.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Samples\FollowUserRotation.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Interfaces\OrbbecAstraMapper.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Kinect\KinectEmotionSender.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\Filters\JointPositionsFilter.cs" />
+    <Compile Include="Assets\K2Examples\KinectScripts\HeadMover.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />
+    <None Include="Assets\K2Examples\Plugins\Kinect2UnityWrapper.dll" />
     <None Include="Assets\Noto_Sans_TC\OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\K2Examples\KinectScripts\SharpZipLib\ICSharpCode.SharpZipLib.dll" />
+    <None Include="Assets\K2Examples\Resources\Dilate.shader" />
+    <None Include="Assets\K2Examples\Resources\Body2DepthShaderNN.shader" />
+    <None Include="Assets\K2Examples\Resources\DepthShader.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
+    <None Include="Assets\K2Examples\Resources\BlurShader3.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\K2Examples\Resources\Color2BodyShader.shader" />
+    <None Include="Assets\K2Examples\Resources\CoordMapper.compute" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Noto_Sans_TC\README.txt" />
+    <None Include="Assets\K2Examples\Resources\BlurShader1.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
+    <None Include="Assets\K2Examples\KinectScripts\LZ4Sharp\LZ4Sharp.dll" />
     <None Include="Assets\Scenes\Scripts\UI\LoginScreen.uxml" />
+    <None Include="Assets\K2Examples\Resources\Depth2ColorShaderNN.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\K2Examples\Plugins\websocket-sharp.dll" />
+    <None Include="Assets\K2Examples\Resources\TransformTexShader.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\K2Examples\Resources\Body2DepthShaderInvNN.shader" />
+    <None Include="Assets\K2Examples\Resources\DepthHistImageShader.shader" />
+    <None Include="Assets\K2Examples\Resources\Color2BodyShaderNN.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\K2Examples\Resources\ForegroundBlendShader.shader" />
+    <None Include="Assets\K2Examples\Resources\BodyShader.shader" />
+    <None Include="Assets\K2Examples\Resources\Body2DepthShaderInv.shader" />
+    <None Include="Assets\K2Examples\Resources\Depth2BodyShaderNN.shader" />
+    <None Include="Assets\K2Examples\Resources\SpeechGrammar.grxml.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\K2Examples\Resources\Depth2ColorShader.shader" />
+    <None Include="Assets\K2Examples\Resources\BlurShader.shader" />
+    <None Include="Assets\K2Examples\Resources\Body2ColorShader.shader" />
+    <None Include="Assets\K2Examples\Resources\BlurShader4.shader" />
+    <None Include="Assets\K2Examples\Resources\BlurShader2.shader" />
+    <None Include="Assets\K2Examples\Resources\AstraSpaceMapper.compute" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
+    <None Include="Assets\K2Examples\Resources\Body2ColorShaderInv.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\K2Examples\Resources\BlurShader5.shader" />
+    <None Include="Assets\K2Examples\Resources\Body2DepthShader.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\K2Examples\KinectScripts\Interfaces\Nuitrack\nuitrack.net.dll" />
+    <None Include="Assets\K2Examples\Resources\AstraCoordMapper.compute" />
+    <None Include="Assets\K2Examples\Resources\Erode.shader" />
+    <None Include="Assets\K2Examples\Resources\Gradient.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
+    <None Include="Assets\K2Examples\Resources\MedianShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -637,12 +734,24 @@
       <HintPath>C:\Program Files\Unity\Hub\Editor\6000.4.1f1\Editor\Data\Managed\UnityEngine\UnityEditor.XRModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Kinect2UnityWrapper">
+      <HintPath>Assets\K2Examples\Plugins\Kinect2UnityWrapper.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.Collections.LowLevel.ILSupport">
       <HintPath>Library\PackageCache\com.unity.collections@538ace9075bc\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Library\PackageCache\com.unity.ext.nunit@d8c07649098d\net40\unity-custom\nunit.framework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Assets\K2Examples\KinectScripts\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="LZ4Sharp">
+      <HintPath>Assets\K2Examples\KinectScripts\LZ4Sharp\LZ4Sharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.IO.Hashing">
@@ -659,6 +768,14 @@
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>Library\PackageCache\com.unity.collections@538ace9075bc\Unity.Collections.Tests\System.Runtime.CompilerServices.Unsafe\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nuitrack.net">
+      <HintPath>Assets\K2Examples\KinectScripts\Interfaces\Nuitrack\nuitrack.net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\K2Examples\Plugins\websocket-sharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="netstandard">
