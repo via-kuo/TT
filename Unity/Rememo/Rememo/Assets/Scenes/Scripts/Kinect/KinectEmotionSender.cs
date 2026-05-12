@@ -4,8 +4,15 @@ using WebSocketSharp;
 using Windows.Kinect;
 using Microsoft.Kinect.Face;
 
+
+
 public class KinectEmotionSender : MonoBehaviour
 {
+
+    public float lastHappy { get; private set; }
+    public float lastLookingAway { get; private set; }
+    public float lastMouthMoved { get; private set; }
+
     [Header("WebSocket 設定")]
     public string serverUrl = "ws://localhost:8000/ws/emotion";
 
@@ -83,6 +90,15 @@ public class KinectEmotionSender : MonoBehaviour
                 var result = faceFrame.FaceFrameResult;
                 if (result == null) continue;
 
+                lastHappy = result.FaceProperties[FaceProperty.Happy] == DetectionResult.Yes ? 1f :
+            result.FaceProperties[FaceProperty.Happy] == DetectionResult.Maybe ? 0.5f : 0f;
+
+                lastLookingAway = result.FaceProperties[FaceProperty.LookingAway] == DetectionResult.Yes ? 1f :
+                                  result.FaceProperties[FaceProperty.LookingAway] == DetectionResult.Maybe ? 0.5f : 0f;
+
+                lastMouthMoved = result.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Yes ? 1f :
+                                 result.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Maybe ? 0.5f : 0f;
+
                 string GetState(DetectionResult r) => r.ToString();
 
                 string payload = JsonUtility.ToJson(new EmotionPayload
@@ -90,7 +106,6 @@ public class KinectEmotionSender : MonoBehaviour
                     type = "emotion",
                     timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                     happy = GetState(result.FaceProperties[FaceProperty.Happy]),
-                    engaged = GetState(result.FaceProperties[FaceProperty.Engaged]),
                     leftEyeClosed = GetState(result.FaceProperties[FaceProperty.LeftEyeClosed]),
                     rightEyeClosed = GetState(result.FaceProperties[FaceProperty.RightEyeClosed]),
                     lookingAway = GetState(result.FaceProperties[FaceProperty.LookingAway]),
@@ -121,7 +136,6 @@ public class EmotionPayload
     public string type;
     public long timestamp;
     public string happy;
-    public string engaged;
     public string leftEyeClosed;
     public string rightEyeClosed;
     public string lookingAway;
