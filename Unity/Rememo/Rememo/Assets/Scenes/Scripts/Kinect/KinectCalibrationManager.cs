@@ -10,6 +10,7 @@ public class KinectCalibrationManager : MonoBehaviour
     [Header("校正設定")]
     public float calibrationDuration = 15f;  // 校正時間（秒）
     public float stabilityThreshold  = 0.05f; // 骨架穩定閾值
+    public bool IsCalibrated { get; private set; }
 
     [Header("UI 元件")]
     public Image  statusIndicator;   // 橘色/綠色圓點
@@ -92,6 +93,7 @@ public class KinectCalibrationManager : MonoBehaviour
         {
             // 兩個條件都達成
             isCalibrated = true;
+            IsCalibrated = true; 
             SetStatus(true);
             SendCalibrationData();
             Debug.Log("[Calibration] 校正完成，等待治療師確認");
