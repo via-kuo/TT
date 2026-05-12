@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class KinectButtonHover : MonoBehaviour, 
+public class KinectButtonHover : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler
 {
     [Header("懸停設定")]
@@ -13,11 +13,26 @@ public class KinectButtonHover : MonoBehaviour,
 
     private Button button;
     private float hoverTimer = 0f;
-    private bool isHovering  = false;
+    private bool isHovering = false;
 
     void Start()
     {
         button = GetComponent<Button>();
+
+        // 從 HandCursor 取得 CursorProgressRing
+        var handCursor = GameObject.Find("HandCursor");
+        if (handCursor != null)
+        {
+            var rings = handCursor.GetComponentsInChildren<Image>();
+            foreach (var ring in rings)
+            {
+                if (ring.gameObject.name == "CursorProgressRing")
+                {
+                    progressRing = ring;
+                    break;
+                }
+            }
+        }
     }
 
     void Update()
