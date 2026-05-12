@@ -483,6 +483,7 @@ GameObject:
   - component: {fileID: 400405423}
   - component: {fileID: 400405422}
   - component: {fileID: 400405421}
+  - component: {fileID: 400405424}
   m_Layer: 5
   m_Name: MicButton
   m_TagString: Untagged
@@ -591,6 +592,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 400405419}
   m_CullTransparentMesh: 1
+--- !u!114 &400405424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 400405419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61dc6879258ed8e419080d5a449a3012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectButtonHover
+  hoverDuration: 2
+  progressRing: {fileID: 0}
 --- !u!1 &721035780
 GameObject:
   m_ObjectHideFlags: 0
@@ -1336,6 +1351,7 @@ GameObject:
   - component: {fileID: 1558464144}
   - component: {fileID: 1558464143}
   - component: {fileID: 1558464142}
+  - component: {fileID: 1558464145}
   m_Layer: 5
   m_Name: SubmitButton
   m_TagString: Untagged
@@ -1444,6 +1460,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1558464140}
   m_CullTransparentMesh: 1
+--- !u!114 &1558464145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1558464140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61dc6879258ed8e419080d5a449a3012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectButtonHover
+  hoverDuration: 2
+  progressRing: {fileID: 0}
 --- !u!1 &1600814903
 GameObject:
   m_ObjectHideFlags: 0
@@ -1534,6 +1564,7 @@ GameObject:
   - component: {fileID: 1662169901}
   - component: {fileID: 1662169900}
   - component: {fileID: 1662169899}
+  - component: {fileID: 1662169902}
   m_Layer: 5
   m_Name: ReplayButton
   m_TagString: Untagged
@@ -1642,6 +1673,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1662169897}
   m_CullTransparentMesh: 1
+--- !u!114 &1662169902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662169897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61dc6879258ed8e419080d5a449a3012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectButtonHover
+  hoverDuration: 2
+  progressRing: {fileID: 0}
 --- !u!1 &1759699899
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,6 +1930,7 @@ GameObject:
   - component: {fileID: 1847855633}
   - component: {fileID: 1847855632}
   - component: {fileID: 1847855631}
+  - component: {fileID: 1847855634}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -1953,6 +1999,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1847855634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847855630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 243c3bcf7560250429841bbe09055f45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionInputModule
+  m_SendPointerHoverToParent: 1
+  playerIndex: 0
+  leftHandInteraction: 1
+  rightHandInteraction: 1
+  processCursorMovement: 0
+  m_ForceModuleActive: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
