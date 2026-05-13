@@ -4,67 +4,54 @@ using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
 
-
 public class KinectCalibrationManager : MonoBehaviour
 {
     [Header("校正設定")]
-    public float calibrationDuration = 15f;  // 校正時間（秒）
-    public float stabilityThreshold  = 0.05f; // 骨架穩定閾值
-    public bool IsCalibrated { get; private set; }
+    public float calibrationDuration = 15f;
+    public float stabilityThreshold  = 0.05f;
+    public bool  IsCalibrated { get; private set; }
 
     [Header("UI 元件")]
-    public Image  statusIndicator;   // 橘色/綠色圓點
-    public Text   statusText;        // 「設備偵測中」/「設備偵測成功」
-    public Slider progressBar;       // 進度條（可選）
+    public Image  statusIndicator;
+    public Text   statusText;
+    public Slider progressBar;
 
     [Header("WebSocket 設定")]
     public string calibrationUrl = "ws://localhost:8000/ws/calibration";
 
-    // 顏色設定
     private readonly Color COLOR_ORANGE = new Color(1f, 0.6f, 0f);
     private readonly Color COLOR_GREEN  = new Color(0.2f, 0.8f, 0.2f);
 
-    // 校正狀態
-    private bool  isCalibrating   = false;
-    private bool  isCalibrated    = false;
+    private bool  isCalibrating    = false;
     private float calibrationTimer = 0f;
 
-    // 數據累積
     private List<Dictionary<string, float[]>> skeletonBuffer = new List<Dictionary<string, float[]>>();
-    private List<float> happyBuffer      = new List<float>();
-    private List<float> lookingAwayBuffer= new List<float>();
-    private List<float> mouthMovedBuffer = new List<float>();
+    private List<float> happyBuffer       = new List<float>();
+    private List<float> lookingAwayBuffer = new List<float>();
+    private List<float> mouthMovedBuffer  = new List<float>();
 
-    // WebSocket
-    private WebSocket ws;
-
-    // 外部腳本引用
-    private KinectManager      kinectManager;
-    private KinectSkeletonSender skeletonSender;
+    private WebSocket            ws;
+    private KinectManager        kinectManager;
     private KinectEmotionSender  emotionSender;
 
     void Start()
     {
-        kinectManager  = KinectManager.Instance;
-        skeletonSender = GetComponent<KinectSkeletonSender>();
-        emotionSender  = GetComponent<KinectEmotionSender>();
+        kinectManager = KinectManager.Instance;
+        emotionSender = GetComponent<KinectEmotionSender>();
 
-        // 初始化 UI
         SetStatus(false);
 
-        // 連接 WebSocket
         ws = new WebSocket(calibrationUrl);
         ws.OnOpen  += (s, e) => Debug.Log("[Calibration WS] 已連線");
         ws.OnError += (s, e) => Debug.LogError($"[Calibration WS] 錯誤: {e.Message}");
         ws.ConnectAsync();
 
-        // 開始校正
         StartCoroutine(CalibrationRoutine());
     }
 
     IEnumerator CalibrationRoutine()
     {
-        isCalibrating = true;
+        isCalibrating    = true;
         calibrationTimer = 0f;
 
         Debug.Log("[Calibration] 開始蒐集基準值");
@@ -73,34 +60,26 @@ public class KinectCalibrationManager : MonoBehaviour
         {
             calibrationTimer += Time.deltaTime;
 
-            // 更新進度條
             if (progressBar != null)
                 progressBar.value = calibrationTimer / calibrationDuration;
 
-            // 蒐集骨架數據
             CollectSkeletonData();
-
-            // 蒐集情緒數據（從 KinectEmotionSender 取得）
             CollectEmotionData();
 
             yield return null;
         }
 
-        // 時間到，檢查穩定度
         bool isStable = CheckStability();
 
         if (isStable)
         {
-            // 兩個條件都達成
-            isCalibrated = true;
-            IsCalibrated = true; 
+            IsCalibrated = true;
             SetStatus(true);
             SendCalibrationData();
             Debug.Log("[Calibration] 校正完成，等待治療師確認");
         }
         else
         {
-            // 不夠穩定，重新校正
             Debug.Log("[Calibration] 數據不穩定，重新校正");
             skeletonBuffer.Clear();
             happyBuffer.Clear();
@@ -136,21 +115,17 @@ public class KinectCalibrationManager : MonoBehaviour
 
     void CollectEmotionData()
     {
-        // 從 EmotionSender 取得最新情緒數據
-        // 這裡用簡單的隨機模擬，實際要從 EmotionSender 取得
-        // 之後可以在 KinectEmotionSender 加上 public 屬性來取得
         if (emotionSender == null) return;
 
-        happyBuffer.Add(emotionSender.lastHappy);
-        lookingAwayBuffer.Add(emotionSender.lastLookingAway);
-        mouthMovedBuffer.Add(emotionSender.lastMouthMoved);
+        happyBuffer.Add(emotionSender.LastHappy);
+        lookingAwayBuffer.Add(emotionSender.LastLookingAway);
+        mouthMovedBuffer.Add(emotionSender.LastMouthMoved);
     }
 
     bool CheckStability()
     {
         if (skeletonBuffer.Count < 10) return false;
 
-        // 計算 SpineBase 位移標準差
         var spinePositions = new List<Vector3>();
         foreach (var frame in skeletonBuffer)
         {
@@ -163,12 +138,10 @@ public class KinectCalibrationManager : MonoBehaviour
 
         if (spinePositions.Count < 10) return false;
 
-        // 計算平均位置
         Vector3 avg = Vector3.zero;
         foreach (var p in spinePositions) avg += p;
         avg /= spinePositions.Count;
 
-        // 計算標準差
         float variance = 0f;
         foreach (var p in spinePositions)
             variance += (p - avg).sqrMagnitude;
@@ -183,7 +156,6 @@ public class KinectCalibrationManager : MonoBehaviour
     {
         if (ws == null || ws.ReadyState != WebSocketState.Open) return;
 
-        // 計算骨架基準值（各關節平均位置）
         var baselineJoints = new Dictionary<string, float[]>();
         var jointSums      = new Dictionary<string, float[]>();
         var jointCounts    = new Dictionary<string, int>();
@@ -215,23 +187,21 @@ public class KinectCalibrationManager : MonoBehaviour
             };
         }
 
-        // 計算情緒基準值
-        float happyBaseline      = Average(happyBuffer);
+        float happyBaseline       = Average(happyBuffer);
         float lookingAwayBaseline = Average(lookingAwayBuffer);
         float mouthMovedBaseline  = Average(mouthMovedBuffer);
 
-        // 組成 payload 送給 FastAPI
         var payload = new CalibrationPayload
         {
-            type              = "calibration",
-            duration          = calibrationDuration,
-            happyBaseline     = happyBaseline,
+            type                = "calibration",
+            duration            = calibrationDuration,
+            happyBaseline       = happyBaseline,
             lookingAwayBaseline = lookingAwayBaseline,
             mouthMovedBaseline  = mouthMovedBaseline,
-            jointKeys         = new List<string>(baselineJoints.Keys).ToArray(),
-            jointX            = GetAxis(baselineJoints, 0),
-            jointY            = GetAxis(baselineJoints, 1),
-            jointZ            = GetAxis(baselineJoints, 2)
+            jointKeys           = new List<string>(baselineJoints.Keys).ToArray(),
+            jointX              = GetAxis(baselineJoints, 0),
+            jointY              = GetAxis(baselineJoints, 1),
+            jointZ              = GetAxis(baselineJoints, 2)
         };
 
         ws.SendAsync(JsonUtility.ToJson(payload), null);
@@ -273,11 +243,11 @@ public class KinectCalibrationManager : MonoBehaviour
 [System.Serializable]
 public class CalibrationPayload
 {
-    public string  type;
-    public float   duration;
-    public float   happyBaseline;
-    public float   lookingAwayBaseline;
-    public float   mouthMovedBaseline;
+    public string   type;
+    public float    duration;
+    public float    happyBaseline;
+    public float    lookingAwayBaseline;
+    public float    mouthMovedBaseline;
     public string[] jointKeys;
     public float[]  jointX;
     public float[]  jointY;

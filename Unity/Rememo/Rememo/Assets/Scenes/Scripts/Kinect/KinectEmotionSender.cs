@@ -4,31 +4,32 @@ using WebSocketSharp;
 using Windows.Kinect;
 using Microsoft.Kinect.Face;
 
-
-
 public class KinectEmotionSender : MonoBehaviour
 {
-
-    public float lastHappy { get; private set; }
-    public float lastLookingAway { get; private set; }
-    public float lastMouthMoved { get; private set; }
+    public float LastHappy       { get; private set; }
+    public float LastLookingAway { get; private set; }
+    public float LastMouthMoved  { get; private set; }
 
     [Header("WebSocket 設定")]
     public string serverUrl = "ws://localhost:8000/ws/emotion";
 
-    private WebSocket ws;
-    private KinectSensor sensor;
+    [Header("傳送設定")]
+    public float sendInterval = 0.1f;
+
+    private WebSocket       ws;
+    private KinectSensor    sensor;
     private BodyFrameReader bodyReader;
-    private FaceFrameSource[] faceSources;
-    private FaceFrameReader[] faceReaders;
-    private Body[] bodies;
+    private FaceFrameSource faceSource;
+    private FaceFrameReader faceReader;
+    private Body[]          bodies;
+    private float           sendTimer = 0f;
 
     private const int BODY_COUNT = 6;
 
     void Start()
     {
         ws = new WebSocket(serverUrl);
-        ws.OnOpen += (s, e) => Debug.Log("[Emotion WS] 已連線");
+        ws.OnOpen  += (s, e) => Debug.Log("[Emotion WS] 已連線");
         ws.OnError += (s, e) => Debug.LogError($"[Emotion WS] 錯誤: {e.Message}");
         ws.OnClose += (s, e) => Debug.Log("[Emotion WS] 已關閉");
         ws.ConnectAsync();
@@ -48,82 +49,83 @@ public class KinectEmotionSender : MonoBehaviour
                      | FaceFrameFeatures.MouthMoved;
 
         bodyReader = sensor.BodyFrameSource.OpenReader();
-        bodies = new Body[BODY_COUNT];
+        bodies     = new Body[BODY_COUNT];
 
-        faceSources = new FaceFrameSource[BODY_COUNT];
-        faceReaders = new FaceFrameReader[BODY_COUNT];
-
-        for (int i = 0; i < BODY_COUNT; i++)
-        {
-            faceSources[i] = FaceFrameSource.Create(sensor, 0, features);
-            faceReaders[i] = faceSources[i].OpenReader();
-        }
+        faceSource = FaceFrameSource.Create(sensor, 0, features);
+        faceReader = faceSource.OpenReader();
 
         if (!sensor.IsOpen) sensor.Open();
     }
 
     void Update()
     {
+        // Throttle
+        sendTimer += Time.deltaTime;
+        if (sendTimer < sendInterval) return;
+        sendTimer = 0f;
+
         if (ws == null || ws.ReadyState != WebSocketState.Open) return;
 
-        // 更新 body tracking ID
+        // Step 1：找第一個被追蹤的身體，失效才重新指定
         using (var frame = bodyReader?.AcquireLatestFrame())
         {
             if (frame != null)
             {
                 frame.GetAndRefreshBodyData(bodies);
-                for (int i = 0; i < BODY_COUNT; i++)
+
+                if (!faceSource.IsTrackingIdValid)
                 {
-                    if (bodies[i] != null && bodies[i].IsTracked)
-                        faceSources[i].TrackingId = bodies[i].TrackingId;
+                    foreach (var body in bodies)
+                    {
+                        if (body != null && body.IsTracked)
+                        {
+                            faceSource.TrackingId = body.TrackingId;
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-        // 讀取表情數據
-        for (int i = 0; i < BODY_COUNT; i++)
+        // Step 2：讀取表情並送出
+        using (var faceFrame = faceReader?.AcquireLatestFrame())
         {
-            using (var faceFrame = faceReaders[i]?.AcquireLatestFrame())
+            if (faceFrame == null || !faceFrame.IsTrackingIdValid) return;
+
+            var result = faceFrame.FaceFrameResult;
+            if (result == null) return;
+
+            LastHappy = result.FaceProperties[FaceProperty.Happy] == DetectionResult.Yes   ? 1f :
+                        result.FaceProperties[FaceProperty.Happy] == DetectionResult.Maybe ? 0.5f : 0f;
+
+            LastLookingAway = result.FaceProperties[FaceProperty.LookingAway] == DetectionResult.Yes   ? 1f :
+                              result.FaceProperties[FaceProperty.LookingAway] == DetectionResult.Maybe ? 0.5f : 0f;
+
+            LastMouthMoved = result.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Yes   ? 1f :
+                             result.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Maybe ? 0.5f : 0f;
+
+            string GetState(DetectionResult r) => r.ToString();
+
+            string payload = JsonUtility.ToJson(new EmotionPayload
             {
-                if (faceFrame == null || !faceFrame.IsTrackingIdValid) continue;
+                type           = "emotion",
+                timestamp      = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                happy          = GetState(result.FaceProperties[FaceProperty.Happy]),
+                leftEyeClosed  = GetState(result.FaceProperties[FaceProperty.LeftEyeClosed]),
+                rightEyeClosed = GetState(result.FaceProperties[FaceProperty.RightEyeClosed]),
+                lookingAway    = GetState(result.FaceProperties[FaceProperty.LookingAway]),
+                mouthOpen      = GetState(result.FaceProperties[FaceProperty.MouthOpen]),
+                mouthMoved     = GetState(result.FaceProperties[FaceProperty.MouthMoved])
+            });
 
-                var result = faceFrame.FaceFrameResult;
-                if (result == null) continue;
-
-                lastHappy = result.FaceProperties[FaceProperty.Happy] == DetectionResult.Yes ? 1f :
-            result.FaceProperties[FaceProperty.Happy] == DetectionResult.Maybe ? 0.5f : 0f;
-
-                lastLookingAway = result.FaceProperties[FaceProperty.LookingAway] == DetectionResult.Yes ? 1f :
-                                  result.FaceProperties[FaceProperty.LookingAway] == DetectionResult.Maybe ? 0.5f : 0f;
-
-                lastMouthMoved = result.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Yes ? 1f :
-                                 result.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Maybe ? 0.5f : 0f;
-
-                string GetState(DetectionResult r) => r.ToString();
-
-                string payload = JsonUtility.ToJson(new EmotionPayload
-                {
-                    type = "emotion",
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                    happy = GetState(result.FaceProperties[FaceProperty.Happy]),
-                    leftEyeClosed = GetState(result.FaceProperties[FaceProperty.LeftEyeClosed]),
-                    rightEyeClosed = GetState(result.FaceProperties[FaceProperty.RightEyeClosed]),
-                    lookingAway = GetState(result.FaceProperties[FaceProperty.LookingAway]),
-                    mouthOpen = GetState(result.FaceProperties[FaceProperty.MouthOpen]),
-                    mouthMoved = GetState(result.FaceProperties[FaceProperty.MouthMoved])
-                });
-
-                ws.SendAsync(payload, null);
-            }
+            ws.SendAsync(payload, null);
         }
     }
 
     void OnDestroy()
     {
-        if (faceReaders != null)
-            foreach (var r in faceReaders) r?.Dispose();
-        if (faceSources != null)
-            foreach (var s in faceSources) s?.Dispose(true);
+        faceReader?.Dispose();
+        faceSource?.Dispose(true);
         bodyReader?.Dispose();
         ws?.Close();
         sensor?.Close();
@@ -134,7 +136,7 @@ public class KinectEmotionSender : MonoBehaviour
 public class EmotionPayload
 {
     public string type;
-    public long timestamp;
+    public long   timestamp;
     public string happy;
     public string leftEyeClosed;
     public string rightEyeClosed;
