@@ -36,6 +36,8 @@ models/
 .venv/
 .git/
 
+test/
+
 # Unity (Rememo 專案)
 **/Library/
 **/Temp/
