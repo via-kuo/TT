@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { mockTherapist } from "@/lib/mock-data";
 
 export default function AccountPage() {
-  const [therapistName, setTherapistName] = useState(
-    () => localStorage.getItem("rememo_name") ?? mockTherapist.name
-  );
+  const [therapistName, setTherapistName] = useState(mockTherapist.name);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [institution, setInstitution] = useState(
-    () => localStorage.getItem("rememo_institution") ?? mockTherapist.institution
-  );
-  const [email, setEmail] = useState(
-    () => localStorage.getItem("rememo_email") ?? mockTherapist.email
-  );
+  const [institution, setInstitution] = useState(mockTherapist.institution);
+  const [email, setEmail] = useState(mockTherapist.email);
+
+  useEffect(() => {
+    setTherapistName(localStorage.getItem("rememo_name") ?? mockTherapist.name);
+    setInstitution(localStorage.getItem("rememo_institution") ?? mockTherapist.institution);
+    setEmail(localStorage.getItem("rememo_email") ?? mockTherapist.email);
+  }, []);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
