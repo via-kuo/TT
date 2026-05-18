@@ -8,6 +8,7 @@ postgres_data/
 ollama_data/
 postgres_db/
 pgadmin/
+qdrant_storage/
 
 # 媒體與大型壓縮檔 (剛才的大魔王)
 *.wav
@@ -20,8 +21,6 @@ pgadmin/
 **/data.zip
 *.npy
 *.data-00000-of-00001
-
-
 
 # AI 模型與權重檔 (絕對不要上傳)
 models/
