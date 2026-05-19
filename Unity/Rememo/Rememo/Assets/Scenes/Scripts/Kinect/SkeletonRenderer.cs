@@ -96,16 +96,11 @@ public class SkeletonRenderer : MonoBehaviour
         skeletonTexture.Apply();
     }
 
-    /// <summary>
-    /// Kinect 世界座標 → Texture 像素座標
-    /// x: -1.5m ~ 1.5m → 0 ~ TEX_W
-    /// y:  1.2m ~ -1.2m → 0 ~ TEX_H（Y 軸翻轉）
-    /// 若骨架偏移或太小，調整除數（1.5f / 1.2f）
-    /// </summary>
     private Vector2 WorldToPixel(Vector3 worldPos)
     {
-        float x = (worldPos.x / 1.5f * 0.5f + 0.5f) * TEX_W;
-        float y = (1f - (worldPos.y / 1.2f * 0.5f + 0.5f)) * TEX_H;
+        float x = (worldPos.x / 0.8f * 0.5f + 0.5f) * TEX_W;
+        float y = ((worldPos.y - 0.3f) / 1.2f) * TEX_H;
+
         return new Vector2(
             Mathf.Clamp(x, 0, TEX_W - 1),
             Mathf.Clamp(y, 0, TEX_H - 1)
@@ -124,7 +119,7 @@ public class SkeletonRenderer : MonoBehaviour
             if (x0 == x1 && y0 == y1) break;
             int e2 = 2 * err;
             if (e2 > -dy) { err -= dy; x0 += sx; }
-            if (e2 < dx)  { err += dx; y0 += sy; }
+            if (e2 < dx) { err += dx; y0 += sy; }
         }
     }
 

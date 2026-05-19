@@ -305,22 +305,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c69cd7ca51f62742a5a5ead5203dbcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KinectMicVisualizer
-  waveformDisplay: {fileID: 239257344}
-  textureWidth: 512
-  textureHeight: 128
-  waveColor:
-    r: 0
-    g: 1
-    b: 0
-    a: 1
-  bgColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 1
-  amplify: 100000
-  waveTexture: {fileID: 0}
-  pixels: []
 --- !u!1 &427775018
 GameObject:
   m_ObjectHideFlags: 0
@@ -783,7 +767,7 @@ GameObject:
   - component: {fileID: 919837520}
   - component: {fileID: 919837522}
   - component: {fileID: 919837521}
-  - component: {fileID: 919837523}
+  - component: {fileID: 919837524}
   m_Layer: 5
   m_Name: SkeletonPanel
   m_TagString: Untagged
@@ -845,21 +829,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919837519}
   m_CullTransparentMesh: 1
---- !u!114 &919837523
+--- !u!114 &919837524
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919837519}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c68913127bedcd4bbd001b610521305, type: 3}
+  m_Script: {fileID: 11500000, guid: 7aa4baf08740f0d499ab04000ab6f65b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BackgroundColorImage
-  backgroundImage: {fileID: 919837521}
-  backgroundTexture: {fileID: 0}
-  opaqueness: 1
+  m_EditorClassIdentifier: Assembly-CSharp::SkeletonRenderer
+  skeletonImage: {fileID: 919837521}
 --- !u!1 &1003764034
 GameObject:
   m_ObjectHideFlags: 0
@@ -1734,6 +1716,10 @@ PrefabInstance:
     - target: {fileID: 3177368640874235021, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
       propertyPath: computeColorMap
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3177368640874235021, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+      propertyPath: minUserDistance
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 5213336908622505297, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
       propertyPath: m_LocalPosition.x

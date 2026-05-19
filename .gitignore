@@ -68,7 +68,6 @@ Kinect-v2-with-MS-SDK*/
 **/Assets/K2Examples.meta
 **/Assets/K2Examples/KinectScripts.meta
 **/Assets/K2Examples/Plugins.meta
-<<<<<<< HEAD
 **/Assets/K2Examples/Resources.meta
 
 # Kinect SDK 執行時期 DLL（在專案根目錄）
@@ -83,6 +82,3 @@ Kinect-v2-with-MS-SDK*/
 **/Rememo/Assembly-CSharp.csproj
 **/Rememo/Assembly-CSharp-Editor.csproj
 *.csproj.lscache
-=======
-**/Assets/K2Examples/Resources.meta
->>>>>>> origin/dev
