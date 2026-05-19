@@ -79,3 +79,4 @@ Kinect-v2-with-MS-SDK*/
 # Unity 自動產生
 **/Rememo/Assembly-CSharp.csproj
 **/Rememo/Assembly-CSharp-Editor.csproj
+*.csproj.lscache
