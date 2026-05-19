@@ -8,31 +8,32 @@ public class KinectCalibrationManager : MonoBehaviour
 {
     [Header("校正設定")]
     public float calibrationDuration = 15f;
-    public float stabilityThreshold  = 0.05f;
-    public bool  IsCalibrated { get; private set; }
+    public float stabilityThreshold = 0.05f;
+    public bool IsCalibrated { get; private set; }
 
     [Header("UI 元件")]
-    public Image  statusIndicator;
-    public Text   statusText;
     public Slider progressBar;
+    public Image  statusIndicator;
+    public Sprite spriteDetecting;
+    public Sprite spriteSuccess;
 
     [Header("WebSocket 設定")]
     public string calibrationUrl = "ws://localhost:8000/ws/calibration";
 
     private readonly Color COLOR_ORANGE = new Color(1f, 0.6f, 0f);
-    private readonly Color COLOR_GREEN  = new Color(0.2f, 0.8f, 0.2f);
+    private readonly Color COLOR_GREEN = new Color(0.2f, 0.8f, 0.2f);
 
-    private bool  isCalibrating    = false;
+    private bool isCalibrating = false;
     private float calibrationTimer = 0f;
 
     private List<Dictionary<string, float[]>> skeletonBuffer = new List<Dictionary<string, float[]>>();
-    private List<float> happyBuffer       = new List<float>();
+    private List<float> happyBuffer = new List<float>();
     private List<float> lookingAwayBuffer = new List<float>();
-    private List<float> mouthMovedBuffer  = new List<float>();
+    private List<float> mouthMovedBuffer = new List<float>();
 
-    private WebSocket            ws;
-    private KinectManager        kinectManager;
-    private KinectEmotionSender  emotionSender;
+    private WebSocket ws;
+    private KinectManager kinectManager;
+    private KinectEmotionSender emotionSender;
 
     void Start()
     {
@@ -42,7 +43,7 @@ public class KinectCalibrationManager : MonoBehaviour
         SetStatus(false);
 
         ws = new WebSocket(calibrationUrl);
-        ws.OnOpen  += (s, e) => Debug.Log("[Calibration WS] 已連線");
+        ws.OnOpen += (s, e) => Debug.Log("[Calibration WS] 已連線");
         ws.OnError += (s, e) => Debug.LogError($"[Calibration WS] 錯誤: {e.Message}");
         ws.ConnectAsync();
 
@@ -51,7 +52,7 @@ public class KinectCalibrationManager : MonoBehaviour
 
     IEnumerator CalibrationRoutine()
     {
-        isCalibrating    = true;
+        isCalibrating = true;
         calibrationTimer = 0f;
 
         Debug.Log("[Calibration] 開始蒐集基準值");
@@ -157,8 +158,8 @@ public class KinectCalibrationManager : MonoBehaviour
         if (ws == null || ws.ReadyState != WebSocketState.Open) return;
 
         var baselineJoints = new Dictionary<string, float[]>();
-        var jointSums      = new Dictionary<string, float[]>();
-        var jointCounts    = new Dictionary<string, int>();
+        var jointSums = new Dictionary<string, float[]>();
+        var jointCounts = new Dictionary<string, int>();
 
         foreach (var frame in skeletonBuffer)
         {
@@ -166,7 +167,7 @@ public class KinectCalibrationManager : MonoBehaviour
             {
                 if (!jointSums.ContainsKey(kvp.Key))
                 {
-                    jointSums[kvp.Key]   = new float[] { 0, 0, 0 };
+                    jointSums[kvp.Key] = new float[] { 0, 0, 0 };
                     jointCounts[kvp.Key] = 0;
                 }
                 jointSums[kvp.Key][0] += kvp.Value[0];
@@ -187,21 +188,21 @@ public class KinectCalibrationManager : MonoBehaviour
             };
         }
 
-        float happyBaseline       = Average(happyBuffer);
+        float happyBaseline = Average(happyBuffer);
         float lookingAwayBaseline = Average(lookingAwayBuffer);
-        float mouthMovedBaseline  = Average(mouthMovedBuffer);
+        float mouthMovedBaseline = Average(mouthMovedBuffer);
 
         var payload = new CalibrationPayload
         {
-            type                = "calibration",
-            duration            = calibrationDuration,
-            happyBaseline       = happyBaseline,
+            type = "calibration",
+            duration = calibrationDuration,
+            happyBaseline = happyBaseline,
             lookingAwayBaseline = lookingAwayBaseline,
-            mouthMovedBaseline  = mouthMovedBaseline,
-            jointKeys           = new List<string>(baselineJoints.Keys).ToArray(),
-            jointX              = GetAxis(baselineJoints, 0),
-            jointY              = GetAxis(baselineJoints, 1),
-            jointZ              = GetAxis(baselineJoints, 2)
+            mouthMovedBaseline = mouthMovedBaseline,
+            jointKeys = new List<string>(baselineJoints.Keys).ToArray(),
+            jointX = GetAxis(baselineJoints, 0),
+            jointY = GetAxis(baselineJoints, 1),
+            jointZ = GetAxis(baselineJoints, 2)
         };
 
         ws.SendAsync(JsonUtility.ToJson(payload), null);
@@ -225,13 +226,11 @@ public class KinectCalibrationManager : MonoBehaviour
         return result;
     }
 
+
     void SetStatus(bool calibrated)
     {
         if (statusIndicator != null)
-            statusIndicator.color = calibrated ? COLOR_GREEN : COLOR_ORANGE;
-
-        if (statusText != null)
-            statusText.text = calibrated ? "設備偵測成功" : "設備偵測中";
+            statusIndicator.sprite = calibrated ? spriteSuccess : spriteDetecting; ;
     }
 
     void OnDestroy()
@@ -243,13 +242,13 @@ public class KinectCalibrationManager : MonoBehaviour
 [System.Serializable]
 public class CalibrationPayload
 {
-    public string   type;
-    public float    duration;
-    public float    happyBaseline;
-    public float    lookingAwayBaseline;
-    public float    mouthMovedBaseline;
+    public string type;
+    public float duration;
+    public float happyBaseline;
+    public float lookingAwayBaseline;
+    public float mouthMovedBaseline;
     public string[] jointKeys;
-    public float[]  jointX;
-    public float[]  jointY;
-    public float[]  jointZ;
+    public float[] jointX;
+    public float[] jointY;
+    public float[] jointZ;
 }

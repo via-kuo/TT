@@ -216,9 +216,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KinectCalibrationManager
   calibrationDuration: 15
   stabilityThreshold: 0.05
-  statusIndicator: {fileID: 1003764036}
-  statusText: {fileID: 0}
   progressBar: {fileID: 0}
+  statusIndicator: {fileID: 1003764036}
+  spriteDetecting: {fileID: 21300000, guid: bfcc35757442e4872975490f825d5802, type: 3}
+  spriteSuccess: {fileID: 21300000, guid: 2ac2eba71a2ac42619f6797e38b65b4d, type: 3}
   calibrationUrl: ws://localhost:8000/ws/calibration
 --- !u!1 &239257343
 GameObject:
@@ -231,7 +232,6 @@ GameObject:
   - component: {fileID: 239257346}
   - component: {fileID: 239257345}
   - component: {fileID: 239257344}
-  - component: {fileID: 239257347}
   m_Layer: 5
   m_Name: WaveforDisplay
   m_TagString: Untagged
@@ -293,18 +293,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -22}
   m_SizeDelta: {x: -235.4583, y: -104.4683}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &239257347
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 239257343}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c69cd7ca51f62742a5a5ead5203dbcb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::KinectMicVisualizer
 --- !u!1 &427775018
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,7 +427,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 427775018}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 175ecc210d2384d2ba00cd6f66880e15, type: 3}
   m_Name: 
@@ -807,7 +795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.050980393, b: 0.101960786, a: 1}
+  m_Color: {r: 1, g: 0.9803922, b: 0.9803922, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 850, w: 0}
   m_Maskable: 1
@@ -1720,6 +1708,10 @@ PrefabInstance:
     - target: {fileID: 3177368640874235021, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
       propertyPath: minUserDistance
       value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3177368640874235021, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+      propertyPath: ignoreInferredJoints
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5213336908622505297, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
       propertyPath: m_LocalPosition.x

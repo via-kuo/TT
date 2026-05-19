@@ -99,7 +99,7 @@ public class SkeletonRenderer : MonoBehaviour
     private Vector2 WorldToPixel(Vector3 worldPos)
     {
         float x = (worldPos.x / 0.8f * 0.5f + 0.5f) * TEX_W;
-        float y = ((worldPos.y - 0.3f) / 1.2f) * TEX_H;
+        float y = ((worldPos.y - 0.4f) / 1.2f) * TEX_H;
 
         return new Vector2(
             Mathf.Clamp(x, 0, TEX_W - 1),
