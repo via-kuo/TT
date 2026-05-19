@@ -179,9 +179,6 @@ export default function StartSessionPage({ params }: { params: Promise<{ id: str
                 text="調整環境光線後重試"
               />
             </div>
-            <p className="text-[12px] text-[#888] text-center">
-              或忽略警告，直接啟動（可能影響偵測準確度）
-            </p>
           </>
         )}
 
@@ -250,10 +247,10 @@ export default function StartSessionPage({ params }: { params: Promise<{ id: str
           {status === "unstable" && (
             <button
               type="button"
-              onClick={() => router.push("/activity/s-live-1")}
-              className="flex-1 bg-[#e09540] text-white text-[17px] font-semibold rounded-2xl py-4"
+              disabled
+              className="flex-1 bg-[#d0d0d0] text-[#999] text-[17px] font-semibold rounded-2xl py-4 cursor-not-allowed"
             >
-              仍要啟動療程
+              啟動療程（需解決不穩定問題）
             </button>
           )}
           {status === "disconnected" && (

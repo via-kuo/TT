@@ -17,6 +17,7 @@ export default function AccountPage() {
   }, []);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const inputClass =
     "w-full bg-white border border-[#e0e0e0] rounded-xl px-4 py-2 text-[15px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 outline-none focus:border-[#1a1a1a] transition-colors";
@@ -136,12 +137,49 @@ export default function AccountPage() {
         {/* 刪除帳號 */}
         <button
           type="button"
+          onClick={() => setShowDeleteDialog(true)}
           className="self-start text-[#e05c3a] text-[14px] font-medium hover:text-[#c04a2c] transition-colors ml-[2%] mt-[2%]"
         >
-
           刪除帳號
         </button>
       </div>
+
+      {/* 刪除帳號確認 Dialog */}
+      {showDeleteDialog && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={() => setShowDeleteDialog(false)}
+        >
+          <div
+            className="bg-white rounded-2xl px-8 py-6 w-[360px] flex flex-col gap-4 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-1">
+              <h2 className="text-[18px] font-semibold text-[#1a1a1a]">確定要刪除帳號嗎？</h2>
+              <p className="text-[14px] text-[#888]">此操作無法復原，所有資料將永久刪除。</p>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteDialog(false)}
+                className="px-5 py-2 rounded-xl text-[14px] font-medium text-[#1a1a1a] bg-[#f0f0f0] hover:bg-[#e0e0e0] transition-colors"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  window.location.href = "/login";
+                }}
+                className="px-5 py-2 rounded-xl text-[14px] font-medium text-white bg-[#e05c3a] hover:bg-[#c04a2c] transition-colors"
+              >
+                確認刪除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
