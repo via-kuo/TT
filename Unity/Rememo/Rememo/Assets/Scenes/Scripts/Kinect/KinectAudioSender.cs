@@ -13,9 +13,8 @@ public class KinectAudioSender : MonoBehaviour
     private KinectSensor sensor;
     private AudioBeamFrameReader audioReader;
     private MemoryStream audioAccumulator = new MemoryStream();
-
-    // 100ms chunk @ 16kHz 16bit = 3200 bytes
     private const int CHUNK_SIZE = 3200;
+    private bool isInitialized = false;
 
     void Start()
     {
@@ -24,47 +23,65 @@ public class KinectAudioSender : MonoBehaviour
         ws.OnError += (s, e) => Debug.LogError($"[Audio WS] 錯誤: {e.Message}");
         ws.OnClose += (s, e) => Debug.Log("[Audio WS] 已關閉");
         ws.ConnectAsync();
-
-        sensor = KinectSensor.GetDefault();
-        if (sensor == null)
-        {
-            Debug.LogError("[Audio] 找不到 Kinect 感測器");
-            return;
-        }
-
-        audioReader = sensor.AudioSource.OpenReader();
-        audioReader.FrameArrived += OnAudioFrameArrived;
-
-        if (!sensor.IsOpen) sensor.Open();
     }
 
-    private void OnAudioFrameArrived(object sender, AudioBeamFrameArrivedEventArgs e)
+    private void TryInitAudio()
     {
-        var frameReference = e.FrameReference;
-        var frameList = frameReference.AcquireBeamFrames();
+        if (isInitialized) return;
+
+        KinectManager km = KinectManager.Instance;
+        if (km == null || !km.IsInitialized()) return;
+
+        Kinect2Interface sensorInterface = km.GetSensorData().sensorInterface as Kinect2Interface;
+        sensor = sensorInterface?.kinectSensor;
+        if (sensor == null) { isInitialized = true; return; }
+
+        audioReader = sensor.AudioSource.OpenReader();
+        if (audioReader == null) { isInitialized = true; return; }
+
+        var audioBeams = sensor.AudioSource.AudioBeams;
+        if (audioBeams != null && audioBeams.Count > 0)
+            audioBeams[0].AudioBeamMode = AudioBeamMode.Automatic;
+
+        isInitialized = true;
+        Debug.Log("[Audio] 初始化成功");
+    }
+
+    void Update()
+    {
+        TryInitAudio();
+        PollAudio();
+    }
+
+    private void PollAudio()
+    {
+        if (audioReader == null) return;
+
+        var frameList = audioReader.AcquireLatestBeamFrames();
         if (frameList == null) return;
 
         foreach (AudioBeamFrame frame in frameList)
         {
+            if (frame?.SubFrames == null) continue;
             foreach (AudioBeamSubFrame subFrame in frame.SubFrames)
             {
-                // 直接用 BytesPerSample 和 Duration 計算大小
-                int sampleCount = (int)(subFrame.Duration.TotalSeconds * 16000);
-                byte[] floatBuffer = new byte[sampleCount * 4];
+                if (subFrame == null) continue;
+                uint frameBytes = subFrame.FrameLengthInBytes;
+                if (frameBytes == 0) continue;
+
+                byte[] floatBuffer = new byte[frameBytes];
                 subFrame.CopyFrameDataToArray(floatBuffer);
 
                 byte[] int16Buffer = ConvertFloat32ToInt16(floatBuffer);
                 audioAccumulator.Write(int16Buffer, 0, int16Buffer.Length);
-
                 if (audioAccumulator.Length >= CHUNK_SIZE)
                 {
                     if (ws?.ReadyState == WebSocketState.Open)
-                    {
                         ws.SendAsync(audioAccumulator.ToArray(), null);
-                    }
                     audioAccumulator.SetLength(0);
                 }
             }
+            frame.Dispose();
         }
     }
 
@@ -72,7 +89,6 @@ public class KinectAudioSender : MonoBehaviour
     {
         int sampleCount = float32Bytes.Length / 4;
         byte[] result = new byte[sampleCount * 2];
-
         for (int i = 0; i < sampleCount; i++)
         {
             float sample = BitConverter.ToSingle(float32Bytes, i * 4);
@@ -88,8 +104,8 @@ public class KinectAudioSender : MonoBehaviour
     void OnDestroy()
     {
         audioReader?.Dispose();
+        audioReader = null;
         audioAccumulator?.Dispose();
         ws?.Close();
-        sensor?.Close();
     }
 }
