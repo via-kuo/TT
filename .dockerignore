@@ -8,17 +8,19 @@ postgres_data/
 ollama_data/
 postgres_db/
 pgadmin/
+qdrant_storage/
 
-# 媒體與大型壓縮檔 (剛才的大魔王)
+# 媒體與大型壓縮檔
 *.wav
 *.mp4
 *.zip
 *.rar
 *.7z
-test/Rag/data/
-test/Rag/data.zip
 
-# AI 模型與權重檔 (絕對不要上傳)
+# 封鎖整個測試資料夾 (防止雜訊進入容器)
+test/
+
+# AI 模型與權重檔
 models/
 *.pth
 *.bin
@@ -31,7 +33,10 @@ models/
 .venv/
 .git/
 
-# Unity (Rememo 專案)
+# 封鎖整個 Unity 遊戲專案 (Python 後端容器不需要)
+Unity/
+
+# Unity 殘留快取防禦
 **/Library/
 **/Temp/
 **/Logs/
