@@ -56,7 +56,7 @@ export default function LoginPage() {
 
             </div>
 
-            <p className="font-hand font-bold text-[#262625] leading-tight whitespace-nowrap text-[50px] -mt-22">
+            <p className="font-hand font-bold text-[#262625] leading-tight whitespace-nowrap text-[55px] -mt-22">
               Your Story, Piece by Piece
             </p>
 
