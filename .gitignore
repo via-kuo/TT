@@ -1,0 +1,14 @@
+# Claude Code local settings
+.claude/
+
+# Next.js build output
+.next/
+
+# Dependencies
+node_modules/
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# macOS
+.DS_Store
