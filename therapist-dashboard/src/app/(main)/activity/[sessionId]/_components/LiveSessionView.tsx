@@ -66,10 +66,10 @@ export function LiveSessionView() {
       </div>
 
       {/* 主要內容 */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 flex-1 min-h-0">
 
         {/* 左欄 */}
-        <div className="flex-1 flex flex-col gap-3 lg:gap-5">
+        <div className="flex-1 flex flex-col gap-3 lg:gap-5 min-h-0">
 
           {/* 場景 / 回應切換 */}
           <div className="flex flex-col gap-2 lg:gap-3">
@@ -100,7 +100,7 @@ export function LiveSessionView() {
           </div>
 
           {/* AI 建議 */}
-          <div className="bg-[#f9fafb] rounded-xl p-3 md:p-4 lg:p-6 flex flex-col gap-2 md:gap-3 lg:gap-4">
+          <div className="bg-[#f9fafb] rounded-xl p-3 md:p-4 lg:p-6 flex flex-col gap-2 md:gap-3 lg:gap-4 flex-1 min-h-0 overflow-y-auto">
             <h3 className="text-[15px] md:text-[18px] lg:text-[20px] font-medium text-[#0a0a0a]">AI 建議追問語（參考用）</h3>
             <p className="text-[13px] md:text-[15px] lg:text-[17px] text-[#0a0a0a]">本回合可引導的方向：</p>
             <div className="flex flex-col gap-2 lg:gap-3">
