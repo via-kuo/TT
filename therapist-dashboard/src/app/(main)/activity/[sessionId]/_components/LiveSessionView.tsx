@@ -36,14 +36,14 @@ export function LiveSessionView() {
       </h1>
 
       {/* 主要內容 */}
-      <div className="flex gap-4 lg:gap-6 flex-1">
+      <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 flex-1">
 
         {/* 左欄 */}
         <div className="flex-1 flex flex-col gap-4 lg:gap-5">
 
           {/* 場景 / 回應切換 */}
           <div className="flex flex-col gap-2 lg:gap-3">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
               <h2 className="text-[16px] md:text-[22px] lg:text-[28px] font-medium text-[#0a0a0a] shrink-0">
                 <button
                   type="button"
@@ -117,7 +117,7 @@ export function LiveSessionView() {
         </div>
 
         {/* 右欄 */}
-        <div className="w-[220px] md:w-[290px] lg:w-[380px] flex flex-col gap-4 lg:gap-5 shrink-0 -translate-y-[2.5%]">
+        <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] flex flex-col gap-4 lg:gap-5 sm:shrink-0 sm:-translate-y-[2.5%]">
 
           {/* 即時檢測回饋 */}
           <div>
