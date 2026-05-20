@@ -28,15 +28,14 @@ export function LiveSessionView() {
   const handleResume = () => setSession((s) => ({ ...s, status: "running" }));
 
   return (
-    <div className="h-screen overflow-y-auto bg-[#f5e6d3] px-4 md:px-6 lg:px-8 pt-6 lg:pt-10 pb-4 flex flex-col gap-3 lg:gap-4" >
+    <div className="h-screen overflow-y-auto bg-[#f5e6d3] px-4 md:px-6 lg:px-8 pt-3 md:pt-6 lg:pt-10 pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4" >
 
-      {/* 標題 */}
-      <h1 className="text-[23px] md:text-[36px] lg:text-[50px] font-medium text-[#0a0a0a] leading-none">
-        {session.caseName}
-      </h1>
-
-      {/* 回合追蹤（獨立一列） */}
-      <div className="flex items-center gap-2 lg:gap-3">
+      {/* 標題 + 回合追蹤 */}
+      <div className="flex items-center gap-4 lg:gap-6 flex-wrap">
+        <h1 className="text-[23px] md:text-[36px] lg:text-[50px] font-medium text-[#0a0a0a] leading-none shrink-0">
+          {session.caseName}
+        </h1>
+        <div className="flex items-center gap-2 lg:gap-3">
         <span className="text-[14px] md:text-[18px] lg:text-[22px] font-medium text-[#0a0a0a] shrink-0">回合追蹤</span>
         <div className="flex items-center">
           {Array.from({ length: session.totalRounds }, (_, i) => i + 1).map((round, idx) => (
@@ -63,13 +62,14 @@ export function LiveSessionView() {
             </Fragment>
           ))}
         </div>
+        </div>
       </div>
 
       {/* 主要內容 */}
-      <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 flex-1">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:gap-6 flex-1">
 
         {/* 左欄 */}
-        <div className="flex-1 flex flex-col gap-4 lg:gap-5">
+        <div className="flex-1 flex flex-col gap-3 lg:gap-5">
 
           {/* 場景 / 回應切換 */}
           <div className="flex flex-col gap-2 lg:gap-3">
@@ -92,7 +92,7 @@ export function LiveSessionView() {
                 </button>
               </h2>
             </div>
-            <div className="bg-white rounded-xl p-4 lg:p-5 h-[120px] md:h-[140px] lg:h-[160px] overflow-y-auto">
+            <div className="bg-white rounded-xl p-3 md:p-4 lg:p-5 h-[90px] md:h-[140px] lg:h-[160px] overflow-y-auto">
               <p className="text-[14px] md:text-[16px] lg:text-[20px] text-black leading-relaxed">
                 {view === "scene" ? session.currentScene : MOCK_ELDER_RESPONSE}
               </p>
@@ -100,7 +100,7 @@ export function LiveSessionView() {
           </div>
 
           {/* AI 建議 */}
-          <div className="bg-[#f9fafb] rounded-xl p-4 lg:p-6 flex flex-col gap-3 lg:gap-4">
+          <div className="bg-[#f9fafb] rounded-xl p-3 md:p-4 lg:p-6 flex flex-col gap-2 md:gap-3 lg:gap-4">
             <h3 className="text-[15px] md:text-[18px] lg:text-[20px] font-medium text-[#0a0a0a]">AI 建議追問語（參考用）</h3>
             <p className="text-[13px] md:text-[15px] lg:text-[17px] text-[#0a0a0a]">本回合可引導的方向：</p>
             <div className="flex flex-col gap-2 lg:gap-3">
@@ -108,7 +108,7 @@ export function LiveSessionView() {
                 <button
                   key={i}
                   type="button"
-                  className="bg-white border border-[#e5e7eb] rounded-xl py-3 lg:py-4 px-4 lg:px-5 text-[13px] md:text-[14px] lg:text-[16px] font-medium text-[#0a0a0a] text-left hover:bg-[#f5f5f5] transition-colors"
+                  className="bg-white border border-[#e5e7eb] rounded-xl py-2 md:py-3 lg:py-4 px-3 md:px-4 lg:px-5 text-[13px] md:text-[14px] lg:text-[16px] font-medium text-[#0a0a0a] text-left hover:bg-[#f5f5f5] transition-colors"
                 >
                   {s}
                 </button>
@@ -118,7 +118,7 @@ export function LiveSessionView() {
         </div>
 
         {/* 右欄 */}
-        <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] flex flex-col gap-4 lg:gap-5 sm:shrink-0 lg:-translate-y-[2.5%]">
+        <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] flex flex-col gap-3 lg:gap-5 sm:shrink-0 lg:-translate-y-[2.5%]">
 
           {/* 即時檢測回饋 */}
           <div>
@@ -141,7 +141,7 @@ export function LiveSessionView() {
           </div>
 
           {/* 禁忌話題 */}
-          <div className="bg-[#fef2f2] border-[3px] border-[#ffa2a2] rounded-2xl p-4 lg:p-6 flex flex-col gap-2 lg:gap-3">
+          <div className="bg-[#fef2f2] border-[3px] border-[#ffa2a2] rounded-2xl p-3 md:p-4 lg:p-6 flex flex-col gap-2 lg:gap-3">
             <h3 className="text-[14px] md:text-[17px] lg:text-[20px] font-medium text-[#0a0a0a]">禁忌話題提醒</h3>
             <div className="flex gap-3 lg:gap-4 flex-wrap">
               {session.tabooTopics.map((topic, i) => (
