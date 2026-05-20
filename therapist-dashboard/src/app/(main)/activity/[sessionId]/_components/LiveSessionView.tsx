@@ -35,6 +35,36 @@ export function LiveSessionView() {
         {session.caseName}
       </h1>
 
+      {/* 回合追蹤（獨立一列） */}
+      <div className="flex items-center gap-2 lg:gap-3">
+        <span className="text-[14px] md:text-[18px] lg:text-[22px] font-medium text-[#0a0a0a] shrink-0">回合追蹤</span>
+        <div className="flex items-center">
+          {Array.from({ length: session.totalRounds }, (_, i) => i + 1).map((round, idx) => (
+            <Fragment key={round}>
+              {idx > 0 && (
+                <div className="w-4 md:w-6 lg:w-8 h-[2px] bg-[#c08252]" />
+              )}
+              <button
+                type="button"
+                onClick={() => setCurrentRound(round)}
+                className={`w-8 h-8 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full text-[11px] md:text-[14px] lg:text-[16px] font-medium transition-colors ${
+                  round < currentRound
+                    ? "bg-[#c08252] text-white"
+                    : round === currentRound
+                    ? "bg-[#7a4a28] text-white"
+                    : "bg-[#e8d5c0] text-[#b8a090]"
+                }`}
+              >
+                {round}
+              </button>
+              {round === currentRound && (
+                <span className="ml-2 mr-1 text-[12px] md:text-[14px] lg:text-[16px] text-[#0a0a0a]">進行中</span>
+              )}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+
       {/* 主要內容 */}
       <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 flex-1">
 
@@ -43,8 +73,8 @@ export function LiveSessionView() {
 
           {/* 場景 / 回應切換 */}
           <div className="flex flex-col gap-2 lg:gap-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-              <h2 className="text-[16px] md:text-[22px] lg:text-[28px] font-medium text-[#0a0a0a] shrink-0">
+            <div>
+              <h2 className="text-[16px] md:text-[22px] lg:text-[28px] font-medium text-[#0a0a0a]">
                 <button
                   type="button"
                   onClick={() => setView("scene")}
@@ -61,35 +91,6 @@ export function LiveSessionView() {
                   長者的回應
                 </button>
               </h2>
-              {/* 回合追蹤 */}
-              <div className="flex items-center gap-2 lg:gap-3 shrink-0">
-                <span className="text-[14px] md:text-[18px] lg:text-[22px] font-medium text-[#0a0a0a]">回合追蹤</span>
-                <div className="flex items-center">
-                  {Array.from({ length: session.totalRounds }, (_, i) => i + 1).map((round, idx) => (
-                    <Fragment key={round}>
-                      {idx > 0 && (
-                        <div className="w-4 md:w-6 lg:w-8 h-[2px] bg-[#c08252]" />
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => setCurrentRound(round)}
-                        className={`w-8 h-8 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full text-[11px] md:text-[14px] lg:text-[16px] font-medium transition-colors ${
-                          round < currentRound
-                            ? "bg-[#c08252] text-white"
-                            : round === currentRound
-                            ? "bg-[#7a4a28] text-white"
-                            : "bg-[#e8d5c0] text-[#b8a090]"
-                        }`}
-                      >
-                        {round}
-                      </button>
-                      {round === currentRound && (
-                        <span className="ml-2 mr-1 text-[12px] md:text-[14px] lg:text-[16px] text-[#0a0a0a]">進行中</span>
-                      )}
-                    </Fragment>
-                  ))}
-                </div>
-              </div>
             </div>
             <div className="bg-white rounded-xl p-4 lg:p-5 h-[120px] md:h-[140px] lg:h-[160px] overflow-y-auto">
               <p className="text-[14px] md:text-[16px] lg:text-[20px] text-black leading-relaxed">
@@ -117,7 +118,7 @@ export function LiveSessionView() {
         </div>
 
         {/* 右欄 */}
-        <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] flex flex-col gap-4 lg:gap-5 sm:shrink-0 sm:-translate-y-[2.5%]">
+        <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] flex flex-col gap-4 lg:gap-5 sm:shrink-0 lg:-translate-y-[2.5%]">
 
           {/* 即時檢測回饋 */}
           <div>
