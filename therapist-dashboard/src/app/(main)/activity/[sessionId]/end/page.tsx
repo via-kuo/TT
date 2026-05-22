@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
@@ -33,9 +33,13 @@ export default function SessionEndPage() {
     if (!isEditing) return;
     setScores((prev) => prev.map((s, i) => (i === rowIdx ? colIdx : s)));
   }
-//
+  useEffect(() => {
+    document.body.classList.add("overflow-hidden");
+    return () => document.body.classList.remove("overflow-hidden");
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#f5e6d3] px-[10%] pt-11 pb-6 flex flex-col gap-2">
+    <div className="h-screen overflow-hidden bg-[#f5e6d3] px-[10%] pt-11 pb-6 flex flex-col gap-2">
 
       {/* 頁首：標題 + 編輯按鈕 */}
       <div className="flex items-start justify-between">
