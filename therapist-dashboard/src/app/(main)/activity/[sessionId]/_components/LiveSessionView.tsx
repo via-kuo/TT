@@ -33,7 +33,7 @@ export function LiveSessionView() {
   const handleResume = () => setSession((s) => ({ ...s, status: "running" }));
 
   return (
-    <div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 pt-3 md:pt-[5vh] lg:pt-10 pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4" >
+    <div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 pt-3 md:pt-[12vh] lg:pt-10 pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4" >
 
       {/* 標題 + 回合追蹤 */}
       <div className="flex items-center gap-4 lg:gap-6 flex-wrap">
