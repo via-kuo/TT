@@ -67,7 +67,7 @@ export default function SessionEndPage() {
               <th className="w-[160px] border-b border-r border-[#e8e8e8]" />
               {/* 分數欄標題 */}
               {[1, 2, 3, 4].map((score) => (
-                <th key={score} className="border-b border-r border-[#e8e8e8] last:border-r-0 py-4 lg:py-3.5 xl:py-4">
+                <th key={score} className="border-b border-r border-[#e8e8e8] last:border-r-0 py-4 lg:py-4 xl:py-4">
                   <span className="bg-[#b8d0f0] text-[#1a1a1a] text-[16px] font-semibold rounded-xl px-6 py-2">
                     {score}分
                   </span>
