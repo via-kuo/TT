@@ -67,7 +67,7 @@ export default function SessionEndPage() {
               <th className="w-[160px] border-b border-r border-[#e8e8e8]" />
               {/* 分數欄標題 */}
               {[1, 2, 3, 4].map((score) => (
-                <th key={score} className="border-b border-r border-[#e8e8e8] last:border-r-0 py-[17px] lg:py-[15px] xl:py-[17px]">
+                <th key={score} className="border-b border-r border-[#e8e8e8] last:border-r-0 py-4 lg:py-[26px] xl:py-4">
                   <span className="bg-[#b8d0f0] text-[#1a1a1a] text-[16px] font-semibold rounded-xl px-6 py-2">
                     {score}分
                   </span>
@@ -79,7 +79,7 @@ export default function SessionEndPage() {
             {CRITERIA.map((row, rowIdx) => (
               <tr key={row.name} className="border-b border-[#e8e8e8] last:border-b-0">
                 {/* 列名 */}
-                <td className="border-r border-[#e8e8e8] px-6 py-[17px] lg:py-2.5 xl:py-[17px] text-[15px] font-medium text-[#1a1a1a]">
+                <td className="border-r border-[#e8e8e8] px-6 py-4 lg:py-2 xl:py-4 text-[15px] font-medium text-[#1a1a1a]">
                   {row.name}
                 </td>
                 {/* 各分數選項 */}
@@ -89,7 +89,7 @@ export default function SessionEndPage() {
                     <td
                       key={colIdx}
                       onClick={() => handleSelect(rowIdx, colIdx)}
-                      className={`border-r border-[#e8e8e8] last:border-r-0 px-4 py-[17px] lg:py-2.5 xl:py-[17px] text-[14px] text-center transition-colors ${
+                      className={`border-r border-[#e8e8e8] last:border-r-0 px-4 py-4 lg:py-2 xl:py-4 text-[14px] text-center transition-colors ${
                         selected
                           ? "bg-[#e6f4ee] text-[#1a1a1a] font-medium"
                           : isEditing
