@@ -33,11 +33,9 @@ export default function SessionEndPage() {
     if (!isEditing) return;
     setScores((prev) => prev.map((s, i) => (i === rowIdx ? colIdx : s)));
   }
-  //<div className="min-h-screen bg-[#f5e6d3] px-[10%] pt-11 pb-6 flex flex-col gap-2">
-
-//<div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 pt-3 md:pt-[12vh] lg:pt-8 pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4" >
+//
   return (
-    <div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 pt-3 md:pt-[12vh] lg:pt-8 pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4" >
+    <div className="min-h-screen bg-[#f5e6d3] px-[10%] pt-11 pb-6 flex flex-col gap-2">
 
       {/* 頁首：標題 + 編輯按鈕 */}
       <div className="flex items-start justify-between">
