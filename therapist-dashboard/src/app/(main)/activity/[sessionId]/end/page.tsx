@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
@@ -22,8 +22,13 @@ export default function SessionEndPage() {
 
   // 每列目前選中的分數 index（0=1分, 1=2分, 2=3分, 3=4分）
   const [scores, setScores] = useState<number[]>(DEFAULT_SCORES);
-  const [notes, setNotes] = useState(""); // 治療師觀察備註
-  const [isEditing, setIsEditing] = useState(false); // 是否可編輯
+  const [notes, setNotes] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.add("overflow-hidden");
+    return () => document.body.classList.remove("overflow-hidden");
+  }, []);
 
   // 計算總分（index+1 為分數）
   const total = scores.reduce((sum, s) => sum + (s + 1), 0);
@@ -35,7 +40,7 @@ export default function SessionEndPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5e6d3] px-[10%] pt-11 pb-6 flex flex-col gap-2">
+    <div className="h-screen overflow-hidden bg-[#f5e6d3] px-[10%] pt-6 md:pt-[12vh] lg:pt-[12vh] xl:pt-11 pb-6 flex flex-col gap-2">
 
       {/* 頁首：標題 + 編輯按鈕 */}
       <div className="flex items-start justify-between">
