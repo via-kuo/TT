@@ -35,7 +35,7 @@ export default function SessionEndPage() {
  }
 
  return (
-   <div className="fixed inset-0 bg-[#f5e6d3] px-4 md:px-[8%] lg:px-[10%] pt-3 md:pt-5 xl:pt-7 pb-3 md:pb-5 lg:pb-6 flex flex-col gap-1.5 md:gap-2 overflow-hidden">
+   <div className="fixed inset-0 bg-[#f5e6d3] px-4 md:px-[8%] lg:px-[10%] pt-3 md:pt-10 xl:pt-14 pb-3 md:pb-5 lg:pb-6 flex flex-col gap-1.5 md:gap-2 overflow-hidden">
 
      {/* 頁首：標題 + 編輯按鈕 */}
      <div className="flex items-start justify-between">
