@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   return (
     // 整頁容器：暖色背景，左右兩欄排列
-    <div className="h-screen bg-[#f5e6d3] flex overflow-hidden">
+    <div className="fixed inset-0 bg-[#f5e6d3] flex overflow-hidden">
       <div className="flex flex-1 ml-[-28px] h-full">
 
       {/* 左側裝飾區：手機隱藏，平板（768px）以上才顯示 */}
