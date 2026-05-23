@@ -47,7 +47,7 @@ export default function SessionEndPage() {
 
 
  return (
-   <div className="h-[100lvh] overflow-hidden bg-[#f5e6d3] px-[10%] pt-11 lg:pt-[77px] pb-6 flex flex-col gap-2">
+   <div className="h-[100lvh] overflow-hidden bg-[#f5e6d3] px-[10%] pt-6 pb-6 flex flex-col gap-2">
 
 
      {/* 頁首：標題 + 編輯按鈕 */}
@@ -69,7 +69,7 @@ export default function SessionEndPage() {
 
 
      {/* 觀察量表格 */}
-     <div className="bg-white rounded-2xl overflow-hidden border border-[#e8e8e8]">
+     <div className="bg-white rounded-2xl overflow-hidden border border-[#e8e8e8] shrink-0">
        <table className="w-full border-collapse">
          <thead>
            <tr>
