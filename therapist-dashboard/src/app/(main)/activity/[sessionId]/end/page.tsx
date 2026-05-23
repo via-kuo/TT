@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
@@ -40,14 +40,9 @@ export default function SessionEndPage() {
    if (!isEditing) return;
    setScores((prev) => prev.map((s, i) => (i === rowIdx ? colIdx : s)));
  }
- useEffect(() => {
-   document.body.classList.add("overflow-hidden");
-   return () => document.body.classList.remove("overflow-hidden");
- }, []);
-
 
  return (
-   <div className="h-[100lvh] overflow-hidden bg-[#f5e6d3] px-[10%] pt-9 xl:pt-6 pb-6 flex flex-col gap-2">
+   <div className="fixed inset-0 bg-[#f5e6d3] px-[10%] pt-9 xl:pt-6 pb-6 flex flex-col gap-2 overflow-hidden">
 
 
      {/* 頁首：標題 + 編輯按鈕 */}
