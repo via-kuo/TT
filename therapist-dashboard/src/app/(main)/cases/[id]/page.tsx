@@ -104,7 +104,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
       {/* 返回連結 */}
       <Link
         href="/dashboard"
-        className="flex items-center gap-2 text-[#5b8ac5] text-[16px] font-medium hover:text-[#3a6aa0] transition-colors self-start ml-[4%] mt-[6]"
+        className="flex items-center gap-2 text-[#5b8ac5] text-[16px] font-medium hover:text-[#3a6aa0] transition-colors self-start ml-[2%] mt-[6]"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
