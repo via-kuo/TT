@@ -35,7 +35,11 @@ export default function SessionEndPage() {
   }
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
-    return () => document.body.classList.remove("overflow-hidden");
+    document.documentElement.classList.add("overflow-hidden");
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+      document.documentElement.classList.remove("overflow-hidden");
+    };
   }, []);
 
   return (
