@@ -35,13 +35,7 @@ export default function SessionEndPage() {
   }
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-      document.body.style.position = "";
-      document.body.style.width = "";
-    };
+    return () => document.body.classList.remove("overflow-hidden");
   }, []);
 
   return (
