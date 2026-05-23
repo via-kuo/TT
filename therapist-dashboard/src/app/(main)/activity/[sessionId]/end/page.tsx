@@ -42,7 +42,7 @@ export default function SessionEndPage() {
  }
 
  return (
-   <div className="fixed inset-0 bg-[#f5e6d3] px-[10%] pt-9 xl:pt-6 pb-6 flex flex-col gap-2 overflow-hidden">
+   <div className="fixed inset-0 bg-[#f5e6d3] px-[10%] pt-4 xl:pt-6 pb-6 flex flex-col gap-2 overflow-hidden">
 
 
      {/* 頁首：標題 + 編輯按鈕 */}
