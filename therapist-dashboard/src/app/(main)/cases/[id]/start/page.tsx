@@ -139,12 +139,6 @@ export default function StartSessionPage({ params }: { params: Promise<{ id: str
                 <p className="text-[13px] text-[#2e9e5b]/80">骨架偵測就緒，可以開始療程</p>
               </div>
             </div>
-            <button
-              type="button"
-              className="bg-[#2e9e5b] text-white text-[14px] font-medium rounded-full px-4 py-2 whitespace-nowrap"
-            >
-              重新校正
-            </button>
           </div>
         )}
 
