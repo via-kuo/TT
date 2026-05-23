@@ -26,11 +26,7 @@ export function LiveSessionView() {
 
   useEffect(() => {
     document.body.classList.add("overflow-hidden");
-    document.documentElement.classList.add("overflow-hidden");
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-      document.documentElement.classList.remove("overflow-hidden");
-    };
+    return () => document.body.classList.remove("overflow-hidden");
   }, []);
 
   const handlePause = () => setSession((s) => ({ ...s, status: "paused" }));
