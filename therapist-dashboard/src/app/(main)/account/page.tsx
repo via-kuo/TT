@@ -34,7 +34,6 @@ export default function AccountPage() {
           </svg>
           <span className="text-[15px] font-medium">個案列表</span>
         </Link>
-        <h1 className="text-[22px] font-semibold text-[#1a1a1a]">帳號設定</h1>
       </div>
 
       {/* 內容區：置中 */}
