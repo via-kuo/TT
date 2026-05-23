@@ -138,7 +138,7 @@ export function LiveSessionView() {
 
 
        {/* 右欄 */}
-       <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] xl:w-[460px] flex flex-col gap-3 lg:gap-5 xl:gap-6 sm:shrink-0 lg:-translate-y-[2.5%] xl:translate-y-[1%]">
+       <div className="w-full sm:w-[220px] md:w-[290px] lg:w-[380px] xl:w-[460px] flex flex-col gap-3 lg:gap-5 xl:gap-6 sm:shrink-0 lg:-translate-y-[2.5%] xl:translate-y-[1.5%]">
 
 
          {/* 即時檢測回饋 */}
