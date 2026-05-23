@@ -99,7 +99,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const recentSessions = sessions.slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-[#f5e6d3] px-12 py-6 flex flex-col gap-5">
+    <div className="fixed inset-0 bg-[#f5e6d3] px-12 py-6 flex flex-col gap-5 overflow-hidden">
 
       {/* 返回連結 */}
       <Link
@@ -114,7 +114,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
       </Link>
 
       {/* 主要內容區 */}
-      <div className="ml-[20%] w-[60%] flex flex-col gap-5">
+      <div className="ml-[20%] w-[60%] flex flex-col gap-5 flex-1 min-h-0">
 
         {/* 個案標頭 */}
         <div className="flex items-center gap-4">
@@ -191,7 +191,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {tab === "info" && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 overflow-y-auto flex-1 min-h-0">
             {isEditing ? (
               /* 編輯模式 */
               <>
@@ -287,7 +287,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
         )}
 
         {tab === "history" && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 overflow-y-auto flex-1 min-h-0">
             {sessions.length === 0 ? (
               <div className="bg-white rounded-xl px-6 py-10 text-center text-[#888] text-[15px]">尚無療程記錄</div>
             ) : (

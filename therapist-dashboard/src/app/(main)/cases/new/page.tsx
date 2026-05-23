@@ -23,7 +23,7 @@ export default function NewCasePage() {
     "w-full bg-[#f5f5f5] rounded-xl px-4 py-2 text-[15px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 outline-none focus:bg-[#efefef] transition-colors";
 
   return (
-    <div className="min-h-screen bg-[#f5e6d3] px-12 py-5 flex flex-col gap-3">
+    <div className="fixed inset-0 bg-[#f5e6d3] px-12 py-5 flex flex-col gap-3 overflow-hidden">
 
       {/* 麵包屑導覽 */}
       <nav className="flex items-center gap-2 text-[14px] ml-[25%]">
