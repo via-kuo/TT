@@ -117,7 +117,7 @@ export default function SessionEndPage() {
      </div>
 
      {/* 底部按鈕 */}
-     <div className="flex gap-2 md:gap-3">
+     <div className="flex gap-2 md:gap-3 mt-2">
        <button
          type="button"
          onClick={() => router.push("/dashboard")}
