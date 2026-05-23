@@ -23,10 +23,10 @@ export default function AccountPage() {
     "w-full bg-white border border-[#e0e0e0] rounded-xl px-4 py-2 text-[15px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 outline-none focus:border-[#1a1a1a] transition-colors";
 
   return (
-    <div className="fixed inset-0 bg-[#f5e6d3] px-12 py-5 flex flex-col gap-4 overflow-hidden">
+    <div className="fixed inset-0 bg-[#f5e6d3] px-4 sm:px-8 py-5 flex flex-col gap-4 overflow-y-auto">
 
       {/* 返回 + 標題 */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 w-full max-w-2xl mx-auto">
         <Link href="/dashboard" className="text-[#1a1a1a] hover:text-[#555] transition-colors">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -37,7 +37,7 @@ export default function AccountPage() {
       </div>
 
       {/* 內容區：置中 */}
-      <div className="ml-[25%] w-[50%] flex flex-col gap-3">
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-3">
 
         {/* 使用者資訊 */}
         <div className="flex flex-col gap-1">
@@ -50,19 +50,19 @@ export default function AccountPage() {
                 onChange={(e) => setTherapistName(e.target.value)}
                 onBlur={() => setIsEditingName(false)}
                 onKeyDown={(e) => { if (e.key === "Enter") setIsEditingName(false); }}
-                className="text-[26px] font-bold text-[#1a1a1a] ml-[1.7%] bg-transparent border-b-2 border-[#1a1a1a] outline-none w-[180px]"
+                className="text-[26px] font-bold text-[#1a1a1a] bg-transparent border-b-2 border-[#1a1a1a] outline-none w-[180px]"
               />
             ) : (
-              <span className="text-[26px] font-bold text-[#1a1a1a] ml-[1.7%]">{therapistName}</span>
+              <span className="text-[26px] font-bold text-[#1a1a1a]">{therapistName}</span>
             )}
-            <button type="button" onClick={() => setIsEditingName(true)} className="text-[#888] hover:text-[#1a1a1a] transition-colors ml-[0.6%]">
+            <button type="button" onClick={() => setIsEditingName(true)} className="text-[#888] hover:text-[#1a1a1a] transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
           </div>
-          <p className="text-[14px] text-[#888] ml-[2%]">{mockTherapist.email}</p>
+          <p className="text-[14px] text-[#888]">{mockTherapist.email}</p>
         </div>
 
         {/* 修改資料 */}
@@ -138,7 +138,7 @@ export default function AccountPage() {
         <button
           type="button"
           onClick={() => setShowDeleteDialog(true)}
-          className="self-start text-[#e05c3a] text-[14px] font-medium hover:text-[#c04a2c] transition-colors ml-[2%] mt-[2%]"
+          className="self-start text-[#e05c3a] text-[14px] font-medium hover:text-[#c04a2c] transition-colors mt-2"
         >
           刪除帳號
         </button>

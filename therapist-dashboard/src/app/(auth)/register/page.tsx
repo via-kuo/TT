@@ -16,7 +16,7 @@ export default function RegisterPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-[#f5e6d3] flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-lg px-16 py-14 w-full max-w-[520px] flex flex-col items-center gap-8">
+        <div className="bg-white rounded-2xl shadow-lg px-8 sm:px-16 py-10 sm:py-14 w-full max-w-[520px] flex flex-col items-center gap-8">
 
           {/* 勾勾圖示 */}
           <div className="w-24 h-24 rounded-full bg-[#fde8e4] flex items-center justify-center">
@@ -50,7 +50,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-[#f5e6d3] flex items-center justify-center px-4 py-10">
 
       {/* 白色卡片 */}
-      <div className="bg-white rounded-2xl shadow-lg px-16 py-6 w-full max-w-[760px] flex flex-col items-center gap-3">
+      <div className="bg-white rounded-2xl shadow-lg px-6 sm:px-16 py-6 w-full max-w-[760px] flex flex-col items-center gap-3">
 
         {/* 人物加號圖示 */}
         <div className="w-20 h-20 rounded-full bg-[#fde8e4] flex items-center justify-center">

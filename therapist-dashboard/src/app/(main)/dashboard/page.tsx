@@ -30,23 +30,23 @@ export default function DashboardPage() {
   const isEmpty = cases.length === 0;
 
   return (
-    <div className="min-h-screen bg-[#f5e6d3] p-8 flex flex-col gap-6">
+    <div className="min-h-screen bg-[#f5e6d3] p-4 sm:p-8 flex flex-col gap-4 sm:gap-6">
 
       {/* 頂部導覽列 */}
-      <nav className="bg-white rounded-2xl shadow-sm px-8 py-5 flex items-center justify-between">
-        <span className="text-[25px] font-medium text-[#1a1a1a] tracking-tight">
+      <nav className="bg-white rounded-2xl shadow-sm px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-3">
+        <span className="text-[16px] sm:text-[22px] font-medium text-[#1a1a1a] tracking-tight truncate min-w-0">
           {displayInstitution}　{displayName}
         </span>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <Link
             href="/account"
-            className="border border-[#1a1a1a] rounded-xl px-5 py-2.5 text-[15px] font-medium text-[#1a1a1a] hover:bg-[#f5f5f5] transition-colors"
+            className="border border-[#1a1a1a] rounded-xl px-3 sm:px-5 py-2 sm:py-2.5 text-[13px] sm:text-[15px] font-medium text-[#1a1a1a] hover:bg-[#f5f5f5] transition-colors whitespace-nowrap"
           >
             帳號設定
           </Link>
           <Link
             href="/login"
-            className="border border-[#1a1a1a] rounded-xl px-5 py-2.5 text-[15px] font-medium text-[#1a1a1a] hover:bg-[#f5f5f5] transition-colors flex items-center gap-2"
+            className="border border-[#1a1a1a] rounded-xl px-3 sm:px-5 py-2 sm:py-2.5 text-[13px] sm:text-[15px] font-medium text-[#1a1a1a] hover:bg-[#f5f5f5] transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -63,13 +63,13 @@ export default function DashboardPage() {
 
         {/* 標題列 */}
         <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-0.5 ml-[0.2%]">
-            <h1 className="text-[29px] font-semibold text-[#1a1a1a]">個案列表</h1>
-            <p className="text-[13px] text-[#888] ml-[0.2%]">共 {cases.length} 位長者</p>
+          <div className="flex flex-col gap-0.5">
+            <h1 className="text-[24px] sm:text-[29px] font-semibold text-[#1a1a1a]">個案列表</h1>
+            <p className="text-[13px] text-[#888]">共 {cases.length} 位長者</p>
           </div>
           <Link
             href="/cases/new"
-            className="bg-[#E8F3FF] text-[#5B8AC5] rounded-xl px-5 py-3 text-[15px] font-medium hover:bg-[#D6E9FF] transition-colors flex items-center gap-2 mr-[0.8%]"
+            className="bg-[#E8F3FF] text-[#5B8AC5] rounded-xl px-4 sm:px-5 py-2.5 sm:py-3 text-[14px] sm:text-[15px] font-medium hover:bg-[#D6E9FF] transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
           >
             <span className="text-lg leading-none">+</span> 新增個案
           </Link>

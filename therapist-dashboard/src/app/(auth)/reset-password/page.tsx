@@ -14,7 +14,7 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-[#f5e6d3] flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-lg p-18 w-full max-w-[520px] flex flex-col items-center gap-11">
+        <div className="bg-white rounded-2xl shadow-lg px-8 sm:px-16 py-12 w-full max-w-[520px] flex flex-col items-center gap-8 sm:gap-11">
 
           {/* 勾勾圖示 */}
           <div className="w-[124px] h-[124px] rounded-full bg-[#fde8e4] flex items-center justify-center">
