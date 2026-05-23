@@ -27,11 +27,12 @@ export default function AccountPage() {
 
       {/* 返回 + 標題 */}
       <div className="flex items-center gap-3">
-        <Link href="/dashboard" className="text-[#1a1a1a] hover:text-[#555] transition-colors">
+        <Link href="/dashboard" className="flex items-center gap-1.5 text-[#1a1a1a] hover:text-[#555] transition-colors">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
+          <span className="text-[15px] font-medium">個案列表</span>
         </Link>
         <h1 className="text-[22px] font-semibold text-[#1a1a1a]">帳號設定</h1>
       </div>
