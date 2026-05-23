@@ -20,52 +20,48 @@ export default function LoginPage() {
 
   return (
     // 整頁容器：暖色背景，左右兩欄排列
-    <div className="min-h-screen bg-[#f5e6d3] flex">
-      <div className="flex flex-1 ml-[-28px]">
+    <div className="h-screen bg-[#f5e6d3] flex overflow-hidden">
+      <div className="flex flex-1 ml-[-28px] h-full">
 
       {/* 左側裝飾區：手機隱藏，平板（768px）以上才顯示 */}
-      <div className="hidden md:block flex-1 relative overflow-hidden">
+      <div className="hidden md:flex flex-col flex-1 relative overflow-hidden">
 
         {/* Logo 在左上角 */}
         <div className="absolute top-8 left-15">
           <img src={imgLogo} alt="REMEMO" style={{ height: "clamp(36px, 4vw, 52px)", objectFit: "contain" }} />
         </div>
 
-        {/* 三張照片，各自有不同旋轉角度與絕對定位 */}
-        
+        {/* 照片群組 + 標語：全部固定在同一個置中容器內 */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-8">
 
-        <img src={imgPhoto3} alt="運動" className="absolute"
-          style={{ left: "50%", top: "39%", width: "clamp(180px, 22vw, 240px)", transform: "rotate(16.07deg)", objectFit: "cover" }} />
-        
-        <img src={imgPhoto1} alt="讀書照" className="absolute"
-          style={{ left: "36.8%", top: "15%", width: "clamp(180px, 22vw, 240px)", transform: "rotate(-1.24deg)", objectFit: "cover" }} />
+            <div className="relative w-[480px] h-[560px]">
 
-        <img src={imgPhoto2} alt="家族照" className="absolute"
-          style={{ left: "25%", top: "36%", width: "clamp(180px, 22vw, 260px)", transform: "rotate(-4.47deg)", objectFit: "cover" }} />
+              <img src={imgStar} alt="" className="absolute"
+                style={{ left: "-30px", top: "110px", width: "70px" }} />
 
-        {/* 裝飾星星：大小隨視窗縮放 */}
-        <img
-          src={imgStar}
-          alt=""
-          className="absolute"
-          style={{ left: "16%", top: "24%", width: "clamp(50px, 6vw, 70px)" }}
-        />
-        {/* 裝飾愛心：大小隨視窗縮放 */}
-        <img
-          src={imgHeart}
-          alt=""
-          className="absolute"
-          style={{ left: "78%", top: "63%", width: "clamp(150px, 17vw, 180px)" }}
-        />
+              
+              <img src={imgPhoto3} alt="運動" className="absolute"
+                style={{ left: "240px", top: "215px", width: "215px", transform: "rotate(14.07deg)", objectFit: "cover", zIndex: 0 }} />
 
-        {/* 左下角標語文字：字體大小隨視窗縮放 */}
-        <p
-          className="absolute font-hand font-bold text-[#262625] leading-tight"
-          style={{ fontSize: "clamp(32px, 6vw, 60px)", left: "22.9%", bottom: "12.5%" }}
-          
-        >
-          Your Story, Piece by Piece
-        </p>
+              <img src={imgPhoto1} alt="讀書照" className="absolute"
+                style={{ left: "130px", top: "5px", width: "240px", transform: "rotate(-1.24deg)", objectFit: "cover", zIndex: 1 }} />
+
+              <img src={imgPhoto2} alt="家族照" className="absolute"
+                style={{ left: "30px", top: "195px", width: "245px", transform: "rotate(-4.47deg)", objectFit: "cover", zIndex: 2 }} />
+
+             
+              <img src={imgHeart} alt="" className="absolute"
+                style={{ right: "-145px", bottom: "30px", width: "160px" }} />
+
+            </div>
+
+            <p className="font-hand font-bold text-[#262625] leading-tight whitespace-nowrap text-[55px] -mt-22">
+              Your Story, Piece by Piece
+            </p>
+
+          </div>
+        </div>
       </div>
 
       {/* 右側登入卡片區：不同螢幕尺寸有不同寬度 */}

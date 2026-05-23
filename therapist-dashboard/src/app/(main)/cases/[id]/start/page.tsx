@@ -76,7 +76,7 @@ export default function StartSessionPage({ params }: { params: Promise<{ id: str
   const nextSession = caseData.totalSessions + 1;
 
   return (
-    <div className="min-h-screen bg-[#f5e6d3] px-4 sm:px-5 pt-6 pb-36 flex flex-col">
+    <div className="min-h-screen bg-[#f5e6d3] px-5 pt-6 pb-36 flex flex-col">
       {/* 返回 */}
       <Link
         href={`/cases/${caseId}`}

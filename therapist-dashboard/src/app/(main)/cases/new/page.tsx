@@ -23,10 +23,10 @@ export default function NewCasePage() {
     "w-full bg-[#f5f5f5] rounded-xl px-4 py-2 text-[15px] text-[#1a1a1a] placeholder:text-[#1a1a1a]/30 outline-none focus:bg-[#efefef] transition-colors";
 
   return (
-    <div className="fixed inset-0 bg-[#f5e6d3] px-4 sm:px-8 py-5 flex flex-col gap-3 overflow-y-auto">
+    <div className="min-h-screen bg-[#f5e6d3] px-12 py-5 flex flex-col gap-3">
 
       {/* 麵包屑導覽 */}
-      <nav className="flex items-center gap-2 text-[14px] w-full max-w-2xl mx-auto">
+      <nav className="flex items-center gap-2 text-[14px] ml-[25%]">
         <Link href="/dashboard" className="text-[#888] hover:text-[#1a1a1a] transition-colors">
           個案列表
         </Link>
@@ -35,10 +35,10 @@ export default function NewCasePage() {
       </nav>
 
       {/* 頁面標題 */}
-      <h1 className="text-[26px] sm:text-[32px] font-semibold text-[#1a1a1a] w-full max-w-2xl mx-auto">新增長者個案</h1>
+      <h1 className="text-[32px] font-semibold text-[#1a1a1a] ml-[25%]">新增長者個案</h1>
 
       {/* 表單白卡 */}
-      <div className="bg-white rounded-2xl px-6 sm:px-10 py-6 flex flex-col gap-3 w-full max-w-2xl mx-auto">
+      <div className="bg-white rounded-2xl px-10 py-6 flex flex-col gap-3 w-[50%] ml-[25%]">
 
         {/* 區塊標題 */}
         <h2 className="text-[20px] font-semibold text-[#1a1a1a]">基本資料</h2>

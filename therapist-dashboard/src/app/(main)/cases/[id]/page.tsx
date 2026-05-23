@@ -99,12 +99,12 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const recentSessions = sessions.slice(0, 2);
 
   return (
-    <div className="fixed inset-0 bg-[#f5e6d3] px-4 sm:px-8 py-6 flex flex-col gap-5 overflow-y-auto">
+    <div className="min-h-screen bg-[#f5e6d3] px-12 py-6 flex flex-col gap-5">
 
       {/* 返回連結 */}
       <Link
         href="/dashboard"
-        className="flex items-center gap-2 text-[#5b8ac5] text-[16px] font-medium hover:text-[#3a6aa0] transition-colors self-start w-full max-w-2xl mx-auto"
+        className="flex items-center gap-2 text-[#5b8ac5] text-[16px] font-medium hover:text-[#3a6aa0] transition-colors self-start ml-[2%] mt-[6]"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M19 12H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -114,7 +114,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
       </Link>
 
       {/* 主要內容區 */}
-      <div className="w-full max-w-2xl mx-auto flex flex-col gap-5">
+      <div className="ml-[20%] w-[60%] flex flex-col gap-5">
 
         {/* 個案標頭 */}
         <div className="flex items-center gap-4">
