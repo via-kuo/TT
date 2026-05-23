@@ -42,7 +42,7 @@ export function LiveSessionView() {
 
 
  return (
-   <div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[4vh] lg:pt-[3vh] xl:pt-[7vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4 xl:gap-5" >
+   <div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[4vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4 xl:gap-5" >
 
 
      {/* 標題 + 回合追蹤 */}
