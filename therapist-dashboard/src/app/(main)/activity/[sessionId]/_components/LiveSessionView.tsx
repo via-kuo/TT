@@ -44,7 +44,7 @@ export function LiveSessionView() {
 
 
  return (
-   <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[4vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4 xl:gap-5" >
+   <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-3 lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-2 lg:gap-4 xl:gap-5" >
 
 
      {/* 標題 + 回合追蹤 */}
@@ -112,7 +112,7 @@ export function LiveSessionView() {
                </button>
              </h2>
            </div>
-           <div className="bg-white rounded-xl p-3 md:p-4 lg:p-5 xl:p-6 h-[90px] md:h-[140px] lg:h-[160px] xl:h-[200px] overflow-y-auto">
+           <div className="bg-white rounded-xl p-3 md:p-3 lg:p-5 xl:p-6 h-[90px] md:h-[100px] lg:h-[160px] xl:h-[200px] overflow-y-auto">
              <p className="text-[14px] md:text-[16px] lg:text-[20px] text-black leading-relaxed">
                {view === "scene" ? session.currentScene : MOCK_ELDER_RESPONSE}
              </p>
@@ -121,7 +121,7 @@ export function LiveSessionView() {
 
 
          {/* AI 建議 */}
-         <div className="bg-[#f9fafb] rounded-xl p-3 md:p-4 lg:p-6 xl:p-8 flex flex-col gap-2 md:gap-3 lg:gap-4 xl:gap-5">
+         <div className="bg-[#f9fafb] rounded-xl p-3 md:p-3 lg:p-6 xl:p-8 flex flex-col gap-2 md:gap-2 lg:gap-4 xl:gap-5">
            <h3 className="text-[15px] md:text-[18px] lg:text-[20px] font-medium text-[#0a0a0a]">AI 建議追問語（參考用）</h3>
            <p className="text-[13px] md:text-[15px] lg:text-[17px] text-[#0a0a0a]">本回合可引導的方向：</p>
            <div className="flex flex-col gap-2 lg:gap-3 xl:gap-4">
@@ -129,7 +129,7 @@ export function LiveSessionView() {
                <button
                  key={i}
                  type="button"
-                 className="bg-white border border-[#e5e7eb] rounded-xl py-2 md:py-3 lg:py-4 xl:py-5 px-3 md:px-4 lg:px-5 xl:px-6 text-[13px] md:text-[14px] lg:text-[16px] font-medium text-[#0a0a0a] text-left hover:bg-[#f5f5f5] transition-colors"
+                 className="bg-white border border-[#e5e7eb] rounded-xl py-2 md:py-2 lg:py-4 xl:py-5 px-3 md:px-3 lg:px-5 xl:px-6 text-[13px] md:text-[14px] lg:text-[16px] font-medium text-[#0a0a0a] text-left hover:bg-[#f5f5f5] transition-colors"
                >
                  {s}
                </button>
@@ -165,7 +165,7 @@ export function LiveSessionView() {
 
 
          {/* 禁忌話題 */}
-         <div className="bg-[#fef2f2] border-[3px] border-[#ffa2a2] rounded-2xl p-3 md:p-4 lg:p-6 xl:p-8 flex flex-col gap-2 lg:gap-3 xl:gap-4">
+         <div className="bg-[#fef2f2] border-[3px] border-[#ffa2a2] rounded-2xl p-3 md:p-3 lg:p-6 xl:p-8 flex flex-col gap-2 lg:gap-3 xl:gap-4">
            <h3 className="text-[14px] md:text-[17px] lg:text-[20px] font-medium text-[#0a0a0a]">禁忌話題提醒</h3>
            <div className="flex gap-3 lg:gap-4 xl:gap-5 flex-wrap">
              {session.tabooTopics.map((topic, i) => (
