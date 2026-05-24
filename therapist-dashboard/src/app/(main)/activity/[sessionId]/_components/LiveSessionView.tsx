@@ -32,8 +32,10 @@ export function LiveSessionView() {
 
 
  useEffect(() => {
-   document.body.classList.add("overflow-hidden");
-   return () => document.body.classList.remove("overflow-hidden");
+   if (window.innerWidth >= 1024) {
+     document.body.classList.add("overflow-hidden");
+     return () => document.body.classList.remove("overflow-hidden");
+   }
  }, []);
 
 
@@ -42,7 +44,7 @@ export function LiveSessionView() {
 
 
  return (
-   <div className="h-screen overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[4vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4 xl:gap-5" >
+   <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[4vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-3 lg:gap-4 xl:gap-5" >
 
 
      {/* 標題 + 回合追蹤 */}
