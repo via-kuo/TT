@@ -43,6 +43,7 @@ public class SkeletonRenderer : MonoBehaviour
 
     void Start()
     {
+        kinectManager = KinectManager.Instance;
         skeletonTexture = new Texture2D(TEX_W, TEX_H, TextureFormat.RGBA32, false);
         pixels = new Color32[TEX_W * TEX_H];
 
@@ -54,7 +55,6 @@ public class SkeletonRenderer : MonoBehaviour
 
     void Update()
     {
-        kinectManager = KinectManager.Instance;
         if (kinectManager == null || !kinectManager.IsInitialized()) return;
 
         // 清空為黑色背景
@@ -106,6 +106,7 @@ public class SkeletonRenderer : MonoBehaviour
             Mathf.Clamp(y, 0, TEX_H - 1)
         );
     }
+
 
     /// Bresenham 畫線演算法
     private void DrawLine(Color32[] px, int x0, int y0, int x1, int y1, Color32 color)

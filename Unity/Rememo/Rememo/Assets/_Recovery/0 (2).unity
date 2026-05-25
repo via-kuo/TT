@@ -1552,7 +1552,7 @@ MonoBehaviour:
   releaseHandTexture: {fileID: 21300000, guid: 9eb991669e527294d8161833d04c9e60, type: 3}
   normalHandTexture: {fileID: 21300000, guid: 9eb991669e527294d8161833d04c9e60, type: 3}
   handOverlayCursor: 0
-  smoothFactor: 10
+  smoothFactor: 5
   allowHandClicks: 1
   allowPushToClick: 1
   controlMouseCursor: 0
@@ -2221,7 +2221,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1475418898}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61dc6879258ed8e419080d5a449a3012, type: 3}
   m_Name: 
@@ -2240,7 +2240,6 @@ GameObject:
   - component: {fileID: 1525525770}
   - component: {fileID: 1525525769}
   - component: {fileID: 1525525772}
-  - component: {fileID: 1525525773}
   m_Layer: 5
   m_Name: HandCursor
   m_TagString: Untagged
@@ -2301,10 +2300,10 @@ RectTransform:
   - {fileID: 531713846}
   m_Father: {fileID: 231164214}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 37.5, y: 37.5}
-  m_SizeDelta: {x: 75, y: 75}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1525525772
 MonoBehaviour:
@@ -2320,24 +2319,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KinectButtonHover
   hoverDuration: 2
   progressRing: {fileID: 531713847}
---- !u!114 &1525525773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1525525768}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9e0512a31cfb6f409350a64045ecf5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandCursorRemapper
-  marginLeft: 0.05
-  marginRight: 0.95
-  marginBottom: 0.05
-  marginTop: 0.9
-  smoothing: 0.2
-  useRightHand: 1
 --- !u!1 &1541757720
 GameObject:
   m_ObjectHideFlags: 0

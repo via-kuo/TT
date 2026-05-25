@@ -13,7 +13,7 @@ public class KinectCalibrationManager : MonoBehaviour
 
     [Header("UI 元件")]
     public Slider progressBar;
-    public Image  statusIndicator;
+    public Image statusIndicator;
     public Sprite spriteDetecting;
     public Sprite spriteSuccess;
 
@@ -30,6 +30,14 @@ public class KinectCalibrationManager : MonoBehaviour
     private List<float> happyBuffer = new List<float>();
     private List<float> lookingAwayBuffer = new List<float>();
     private List<float> mouthMovedBuffer = new List<float>();
+
+    // ── 新增：骨架幾何緩衝 ─────────────────────────────
+    private List<float> _spineYBuffer = new List<float>();
+    private List<float> _headYBuffer = new List<float>();
+    private List<float> _shoulderLXBuffer = new List<float>();
+    private List<float> _shoulderRXBuffer = new List<float>();
+    private List<float> _spineZBuffer = new List<float>();
+    // ───────────────────────────────────────────────────
 
     private WebSocket ws;
     private KinectManager kinectManager;
@@ -54,6 +62,17 @@ public class KinectCalibrationManager : MonoBehaviour
     {
         isCalibrating = true;
         calibrationTimer = 0f;
+        Debug.Log("[Calibration] 等待使用者進入鏡頭...");
+        while (true)
+        {
+            if (kinectManager != null &&
+                kinectManager.IsInitialized() &&
+                kinectManager.GetPrimaryUserID() != 0)
+                break;
+
+            yield return null;
+        }
+        Debug.Log("[Calibration] 使用者已就位，開始蒐集");
 
         Debug.Log("[Calibration] 開始蒐集基準值");
 
@@ -76,8 +95,12 @@ public class KinectCalibrationManager : MonoBehaviour
         {
             IsCalibrated = true;
             SetStatus(true);
+            ApplyCursorRemapping(); // ── 新增
             SendCalibrationData();
             Debug.Log("[Calibration] 校正完成，等待治療師確認");
+            // ── 暫時測試用，之後改成等治療師網頁觸發 ──
+            yield return new WaitForSeconds(2f); // 等 2 秒讓你看到校正完成
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene-1");
         }
         else
         {
@@ -86,6 +109,7 @@ public class KinectCalibrationManager : MonoBehaviour
             happyBuffer.Clear();
             lookingAwayBuffer.Clear();
             mouthMovedBuffer.Clear();
+            ClearGeometryBuffers(); // ── 新增
             StartCoroutine(CalibrationRoutine());
         }
     }
@@ -103,10 +127,27 @@ public class KinectCalibrationManager : MonoBehaviour
             if (kinectManager.IsJointTracked(userId, j))
             {
                 Vector3 pos = kinectManager.GetJointPosition(userId, j);
-                joints[((KinectInterop.JointType)j).ToString()] = new float[]
+                string jointName = ((KinectInterop.JointType)j).ToString();
+                joints[jointName] = new float[] { pos.x, pos.y, pos.z };
+
+                // ── 新增：同步蒐集推算用關節 ──────────────
+                switch ((KinectInterop.JointType)j)
                 {
-                    pos.x, pos.y, pos.z
-                };
+                    case KinectInterop.JointType.SpineBase:
+                        _spineYBuffer.Add(pos.y);
+                        _spineZBuffer.Add(pos.z);
+                        break;
+                    case KinectInterop.JointType.Head:
+                        _headYBuffer.Add(pos.y);
+                        break;
+                    case KinectInterop.JointType.ShoulderLeft:
+                        _shoulderLXBuffer.Add(pos.x);
+                        break;
+                    case KinectInterop.JointType.ShoulderRight:
+                        _shoulderRXBuffer.Add(pos.x);
+                        break;
+                }
+                // ──────────────────────────────────────────
             }
         }
 
@@ -153,6 +194,48 @@ public class KinectCalibrationManager : MonoBehaviour
         return stdDev < stabilityThreshold;
     }
 
+    // ── 新增：游標映射推算，結果寫入 CalibrationData ───
+    void ApplyCursorRemapping()
+    {
+        if (_spineYBuffer.Count == 0 || _headYBuffer.Count == 0) return;
+
+        float spineY = Average(_spineYBuffer);
+        float headY = Average(_headYBuffer);
+        float shoulderLX = Average(_shoulderLXBuffer);
+        float shoulderRX = Average(_shoulderRXBuffer);
+        float avgZ = Average(_spineZBuffer);
+
+        float bodyHeight = headY - spineY; // 坐姿約 0.6~0.8m
+
+        // ── 坐姿手部操作區域估算 ──────────────────────────────
+        // 坐姿時手往下不會低於脊椎底部太多，往上不超過頭部
+        // Y 操作範圍：從脊椎上方約 10cm 到頭部下方約 10cm
+        CalibrationData.WorldYMin = spineY - 0.05f;
+        CalibrationData.WorldYMax = headY - bodyHeight * 0.05f;
+
+        // X 範圍：肩膀寬度各往外延伸（坐姿手臂活動範圍較小，用 0.20 而非 0.25）
+        CalibrationData.WorldXMin = shoulderLX - 0.20f;
+        CalibrationData.WorldXMax = shoulderRX + 0.20f;
+
+        CalibrationData.WorldZ = avgZ;
+        CalibrationData.IsCalibrated = true;
+
+        Debug.Log($"[Calibration] 坐姿座標範圍 → " +
+                  $"X:{CalibrationData.WorldXMin:F2}~{CalibrationData.WorldXMax:F2} " +
+                  $"Y:{CalibrationData.WorldYMin:F2}~{CalibrationData.WorldYMax:F2} " +
+                  $"Z:{CalibrationData.WorldZ:F2}");
+    }
+
+    void ClearGeometryBuffers()
+    {
+        _spineYBuffer.Clear();
+        _headYBuffer.Clear();
+        _shoulderLXBuffer.Clear();
+        _shoulderRXBuffer.Clear();
+        _spineZBuffer.Clear();
+    }
+    // ───────────────────────────────────────────────────
+
     void SendCalibrationData()
     {
         if (ws == null || ws.ReadyState != WebSocketState.Open) return;
@@ -188,17 +271,13 @@ public class KinectCalibrationManager : MonoBehaviour
             };
         }
 
-        float happyBaseline = Average(happyBuffer);
-        float lookingAwayBaseline = Average(lookingAwayBuffer);
-        float mouthMovedBaseline = Average(mouthMovedBuffer);
-
         var payload = new CalibrationPayload
         {
             type = "calibration",
             duration = calibrationDuration,
-            happyBaseline = happyBaseline,
-            lookingAwayBaseline = lookingAwayBaseline,
-            mouthMovedBaseline = mouthMovedBaseline,
+            happyBaseline = Average(happyBuffer),
+            lookingAwayBaseline = Average(lookingAwayBuffer),
+            mouthMovedBaseline = Average(mouthMovedBuffer),
             jointKeys = new List<string>(baselineJoints.Keys).ToArray(),
             jointX = GetAxis(baselineJoints, 0),
             jointY = GetAxis(baselineJoints, 1),
@@ -226,17 +305,13 @@ public class KinectCalibrationManager : MonoBehaviour
         return result;
     }
 
-
     void SetStatus(bool calibrated)
     {
         if (statusIndicator != null)
-            statusIndicator.sprite = calibrated ? spriteSuccess : spriteDetecting; ;
+            statusIndicator.sprite = calibrated ? spriteSuccess : spriteDetecting;
     }
 
-    void OnDestroy()
-    {
-        ws?.Close();
-    }
+    void OnDestroy() => ws?.Close();
 }
 
 [System.Serializable]
