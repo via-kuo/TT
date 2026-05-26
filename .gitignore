@@ -82,3 +82,5 @@ Kinect-v2-with-MS-SDK*/
 **/Rememo/Assembly-CSharp.csproj
 **/Rememo/Assembly-CSharp-Editor.csproj
 *.csproj.lscache
+.claude/
+therapist-dashboard/
