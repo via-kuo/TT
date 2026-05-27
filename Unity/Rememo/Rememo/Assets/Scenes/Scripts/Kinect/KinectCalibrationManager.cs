@@ -205,15 +205,14 @@ public class KinectCalibrationManager : MonoBehaviour
         float shoulderRX = Average(_shoulderRXBuffer);
         float avgZ = Average(_spineZBuffer);
 
-        float bodyHeight = headY - spineY; // 坐姿約 0.6~0.8m
+        float bodyHeight = headY - spineY;
 
-        // ── 坐姿手部操作區域估算 ──────────────────────────────
-        // 坐姿時手往下不會低於脊椎底部太多，往上不超過頭部
-        // Y 操作範圍：從脊椎上方約 10cm 到頭部下方約 10cm
-        CalibrationData.WorldYMin = spineY - 0.05f;
-        CalibrationData.WorldYMax = headY - bodyHeight * 0.05f;
+        // ── 手部實際操作 Y 範圍（坐姿）────────────────────────
+        // 手最低約在脊椎高度（放腿上），最高約在肩膀高度（bodyHeight * 0.7）
+        CalibrationData.WorldYMin = spineY - 0.05f;                      // 手放腿上時
+        CalibrationData.WorldYMax = spineY + bodyHeight * 0.75f + 0.10f; // 手抬到約肩膀
 
-        // X 範圍：肩膀寬度各往外延伸（坐姿手臂活動範圍較小，用 0.20 而非 0.25）
+        // X 範圍不變
         CalibrationData.WorldXMin = shoulderLX - 0.20f;
         CalibrationData.WorldXMax = shoulderRX + 0.20f;
 

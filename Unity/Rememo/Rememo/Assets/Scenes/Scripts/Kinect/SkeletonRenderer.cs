@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class SkeletonRenderer : MonoBehaviour
 {
@@ -41,6 +42,22 @@ public class SkeletonRenderer : MonoBehaviour
         (KinectInterop.JointType.AnkleRight,    KinectInterop.JointType.FootRight),
     };
 
+    private static readonly HashSet<KinectInterop.JointType> inferredAllowed = new HashSet<KinectInterop.JointType>
+{
+    KinectInterop.JointType.ShoulderLeft,
+    KinectInterop.JointType.ShoulderRight,
+    KinectInterop.JointType.SpineMid,      // 視情況加，坐姿容易 Inferred
+};
+
+    private bool IsUsableJoint(long userId, int jointIndex)
+    {
+        var state = kinectManager.GetJointTrackingState(userId, jointIndex);
+        if (state == KinectInterop.TrackingState.Tracked) return true;
+        if (state == KinectInterop.TrackingState.Inferred)
+            return inferredAllowed.Contains((KinectInterop.JointType)jointIndex);
+        return false;
+    }
+
     void Start()
     {
         kinectManager = KinectManager.Instance;
@@ -67,27 +84,23 @@ public class SkeletonRenderer : MonoBehaviour
             // 畫連線
             foreach (var (jointA, jointB) in bones)
             {
-                if (kinectManager.IsJointTracked(userId, (int)jointA) &&
-                    kinectManager.IsJointTracked(userId, (int)jointB))
+                if (IsUsableJoint(userId, (int)jointA) && IsUsableJoint(userId, (int)jointB))
                 {
                     Vector2 posA = WorldToPixel(kinectManager.GetJointPosition(userId, (int)jointA));
                     Vector2 posB = WorldToPixel(kinectManager.GetJointPosition(userId, (int)jointB));
-                    DrawLine(pixels,
-                             (int)posA.x, (int)posA.y,
-                             (int)posB.x, (int)posB.y,
+                    DrawLine(pixels, (int)posA.x, (int)posA.y, (int)posB.x, (int)posB.y,
                              new Color32(0, 180, 255, 255));
                 }
             }
 
-            // 畫關節點（有追蹤到的才畫）
+            // 畫關節點
             for (int j = 0; j < 25; j++)
             {
-                if (kinectManager.IsJointTracked(userId, j))
+                if (IsUsableJoint(userId, j))
                 {
                     Vector2 pos = WorldToPixel(kinectManager.GetJointPosition(userId, j));
                     int radius = (j == (int)KinectInterop.JointType.Head) ? 8 : 5;
-                    DrawCircle(pixels, (int)pos.x, (int)pos.y, radius,
-                               new Color32(255, 220, 0, 255));
+                    DrawCircle(pixels, (int)pos.x, (int)pos.y, radius, new Color32(255, 220, 0, 255));
                 }
             }
         }

@@ -13,20 +13,31 @@ public class KinectButtonHover : MonoBehaviour
 
     private float _hoverTimer = 0f;
     private Button _currentButton = null;
+    private RectTransform _rt;
+    private Canvas _canvas;
 
     void Start()
     {
+        _rt = transform as RectTransform;
+        _canvas = GetComponentInParent<Canvas>();
         Debug.Log($"[Hover] progressRing is null: {progressRing == null}");
         ResetRing();
     }
 
     void LateUpdate()
     {
-        var results = new List<RaycastResult>();
+        // ── 將 RectTransform 世界座標轉換為螢幕座標 ─────────
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(
+            _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera,
+            _rt.position
+        );
+
         var pointer = new PointerEventData(EventSystem.current)
         {
-            position = transform.position
+            position = screenPos
         };
+
+        var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointer, results);
 
         // ── 從所有命中結果中找 Button（含自身及父層）────────
@@ -40,7 +51,7 @@ public class KinectButtonHover : MonoBehaviour
             hitButton = r.gameObject.GetComponent<Button>();
             if (hitButton != null) break;
 
-            // 再查父層（往上最多 5 層，避免無限遞迴）
+            // 再查父層（往上最多 5 層）
             Transform t = r.gameObject.transform.parent;
             int depth = 0;
             while (t != null && depth < 5)
@@ -56,6 +67,7 @@ public class KinectButtonHover : MonoBehaviour
         if (hitButton != null)
         {
             Debug.Log($"[Hover] 找到Button: {hitButton.gameObject.name}, timer:{_hoverTimer:F2}/{hoverDuration}");
+
             // 切換目標時重置計時
             if (_currentButton != hitButton)
             {
