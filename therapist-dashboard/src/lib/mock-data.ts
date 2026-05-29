@@ -62,7 +62,7 @@ export const mockSessions: Session[] = [
     totalScore: 20,
     rating: "優良",
     sessionNumber: 5,
-    overallEmotion: "正向",
+    overallEmotion: "適當",
     averageResponseTime: "42s",
     storySummary: "養育的台中紡織廠，你和阿明往廟口走去。廟埕還有人唱歌仔戲，香煙的味道還沒散......",
   },
@@ -80,7 +80,7 @@ export const mockSessions: Session[] = [
     totalScore: 20,
     rating: "普通",
     sessionNumber: 4,
-    overallEmotion: "穩定",
+    overallEmotion: "適當",
     averageResponseTime: "38s",
     storySummary: "廟口的夜晚，燈籠的光打在石板路上，你和老朋友們圍著攤子說笑......",
   },
@@ -98,7 +98,7 @@ export const mockSessions: Session[] = [
     totalScore: 20,
     rating: "普通",
     sessionNumber: 3,
-    overallEmotion: "穩定",
+    overallEmotion: "適當",
     averageResponseTime: "45s",
     storySummary: "紡織廠的機器聲響，梭子來回穿梭，空氣中飄著棉絮的氣味......",
   },
@@ -116,7 +116,7 @@ export const mockSessions: Session[] = [
     totalScore: 20,
     rating: "優良",
     sessionNumber: 1,
-    overallEmotion: "正向",
+    overallEmotion: "適當",
     averageResponseTime: "35s",
     storySummary: "縫衣機嗡嗡作響，你細心地為新娘子量身，絲綢在手中滑過......",
   },
@@ -124,26 +124,26 @@ export const mockSessions: Session[] = [
 
 export const mockSessionRounds: SessionRound[] = [
   // s1 rounds
-  { id: "r1-0", sessionId: "s1", type: "心得", duration: 38, sceneName: "心得分享", content: "不錯有想起回憶", emotion: "正向" },
-  { id: "r1-1", sessionId: "s1", type: "回合", roundNumber: 1, duration: 38, sceneName: "紡織廠童事場景", content: "「去廟口找阿明」", emotion: "正向" },
-  { id: "r1-2", sessionId: "s1", type: "回合", roundNumber: 2, duration: 51, sceneName: "廟口夜市場景", content: "「坐下來聽戲」", emotion: "正向" },
-  { id: "r1-3", sessionId: "s1", type: "回合", roundNumber: 3, duration: 34, sceneName: "宿舍生活場景", content: "「跟阿明下棋」", emotion: "激動" },
+  { id: "r1-0", sessionId: "s1", type: "心得", duration: 38, sceneName: "心得分享", content: "不錯有想起回憶", emotion: "適當" },
+  { id: "r1-1", sessionId: "s1", type: "回合", roundNumber: 1, duration: 38, sceneName: "紡織廠童事場景", content: "「去廟口找阿明」", emotion: "適當" },
+  { id: "r1-2", sessionId: "s1", type: "回合", roundNumber: 2, duration: 51, sceneName: "廟口夜市場景", content: "「坐下來聽戲」", emotion: "焦躁" },
+  { id: "r1-3", sessionId: "s1", type: "回合", roundNumber: 3, duration: 34, sceneName: "宿舍生活場景", content: "「跟阿明下棋」", emotion: "亢奮" },
   // s2 rounds
-  { id: "r2-0", sessionId: "s2", type: "心得", duration: 30, sceneName: "心得分享", content: "感覺很親切", emotion: "正向" },
-  { id: "r2-1", sessionId: "s2", type: "回合", roundNumber: 1, duration: 42, sceneName: "廟口場景", content: "「買碗粿來吃」", emotion: "正向" },
-  { id: "r2-2", sessionId: "s2", type: "回合", roundNumber: 2, duration: 41, sceneName: "夜市場景", content: "「和朋友聊天」", emotion: "穩定" },
-  { id: "r2-3", sessionId: "s2", type: "回合", roundNumber: 3, duration: 40, sceneName: "回家路上場景", content: "「走路回宿舍」", emotion: "穩定" },
+  { id: "r2-0", sessionId: "s2", type: "心得", duration: 30, sceneName: "心得分享", content: "感覺很親切", emotion: "適當" },
+  { id: "r2-1", sessionId: "s2", type: "回合", roundNumber: 1, duration: 42, sceneName: "廟口場景", content: "「買碗粿來吃」", emotion: "適當" },
+  { id: "r2-2", sessionId: "s2", type: "回合", roundNumber: 2, duration: 41, sceneName: "夜市場景", content: "「和朋友聊天」", emotion: "低落" },
+  { id: "r2-3", sessionId: "s2", type: "回合", roundNumber: 3, duration: 40, sceneName: "回家路上場景", content: "「走路回宿舍」", emotion: "適當" },
   // s3 rounds
-  { id: "r3-0", sessionId: "s3", type: "心得", duration: 33, sceneName: "心得分享", content: "有點累但還好", emotion: "穩定" },
-  { id: "r3-1", sessionId: "s3", type: "回合", roundNumber: 1, duration: 48, sceneName: "紡織廠場景", content: "「顧機器」", emotion: "穩定" },
-  { id: "r3-2", sessionId: "s3", type: "回合", roundNumber: 2, duration: 50, sceneName: "午休場景", content: "「吃便當」", emotion: "正向" },
-  { id: "r3-3", sessionId: "s3", type: "回合", roundNumber: 3, duration: 44, sceneName: "廠區場景", content: "「巡視機台」", emotion: "穩定" },
-  { id: "r3-4", sessionId: "s3", type: "回合", roundNumber: 4, duration: 40, sceneName: "下班場景", content: "「很累想休息」", emotion: "穩定" },
+  { id: "r3-0", sessionId: "s3", type: "心得", duration: 33, sceneName: "心得分享", content: "有點累但還好", emotion: "適當" },
+  { id: "r3-1", sessionId: "s3", type: "回合", roundNumber: 1, duration: 48, sceneName: "紡織廠場景", content: "「顧機器」", emotion: "低落" },
+  { id: "r3-2", sessionId: "s3", type: "回合", roundNumber: 2, duration: 50, sceneName: "午休場景", content: "「吃便當」", emotion: "適當" },
+  { id: "r3-3", sessionId: "s3", type: "回合", roundNumber: 3, duration: 44, sceneName: "廠區場景", content: "「巡視機台」", emotion: "焦躁" },
+  { id: "r3-4", sessionId: "s3", type: "回合", roundNumber: 4, duration: 40, sceneName: "下班場景", content: "「很累想休息」", emotion: "低落" },
   // s4 rounds
-  { id: "r4-0", sessionId: "s4", type: "心得", duration: 28, sceneName: "心得分享", content: "好像回到年輕時", emotion: "正向" },
-  { id: "r4-1", sessionId: "s4", type: "回合", roundNumber: 1, duration: 36, sceneName: "裁縫店場景", content: "「量旗袍的尺寸」", emotion: "正向" },
-  { id: "r4-2", sessionId: "s4", type: "回合", roundNumber: 2, duration: 40, sceneName: "婚禮場景", content: "「新娘穿上了旗袍」", emotion: "正向" },
-  { id: "r4-3", sessionId: "s4", type: "回合", roundNumber: 3, duration: 37, sceneName: "市場場景", content: "「選布料」", emotion: "正向" },
+  { id: "r4-0", sessionId: "s4", type: "心得", duration: 28, sceneName: "心得分享", content: "好像回到年輕時", emotion: "適當" },
+  { id: "r4-1", sessionId: "s4", type: "回合", roundNumber: 1, duration: 36, sceneName: "裁縫店場景", content: "「量旗袍的尺寸」", emotion: "亢奮" },
+  { id: "r4-2", sessionId: "s4", type: "回合", roundNumber: 2, duration: 40, sceneName: "婚禮場景", content: "「新娘穿上了旗袍」", emotion: "適當" },
+  { id: "r4-3", sessionId: "s4", type: "回合", roundNumber: 3, duration: 37, sceneName: "市場場景", content: "「選布料」", emotion: "焦躁" },
 ];
 
 export const mockActiveSession: ActiveSession = {
@@ -156,7 +156,7 @@ export const mockActiveSession: ActiveSession = {
   currentScene:
     "廠門口的風吹來，你和阿明沿著路走向廟口。香煙的味道還沒散，廟埕旁邊有人在唱歌仔戲——你在廟口通常都做什麼？",
   elderResponse: "",
-  emotionState: "穩定",
+  emotionState: "適當",
   responseTime: "4s",
   aiSuggestions: [
     "「王伯伯，你在廠裡住宿舍嗎？跟幾個人同住？」",

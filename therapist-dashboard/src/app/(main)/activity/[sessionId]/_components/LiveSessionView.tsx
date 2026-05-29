@@ -8,8 +8,8 @@ import { mockActiveSession } from "@/lib/mock-data";
 
 const EMOTION_COLORS: Record<string, string> = {
  適當: "#34c759",
- 亢奮: "#f0c52c",
- 焦躁: "#fb2c36",
+ 亢奮: "#fb2c36",
+ 焦躁: "#f0c52c",
  低落: "#888888",
 };
 

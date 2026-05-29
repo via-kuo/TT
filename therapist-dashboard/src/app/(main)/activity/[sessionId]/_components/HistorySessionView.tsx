@@ -7,7 +7,7 @@ import Image from "next/image"; // Next.js 圖片元件，自動處理解析度�
 import type { Session, SessionRound, Case } from "@/lib/types"; // 引入型別定義
 
 
-// 情緒文字對應的顏色（正向/穩定 → 綠色，激動 → 紅色，焦慮 → 黃色，沉默 → 灰色）
+// 情緒文字對應的顏色（適當 → 綠色，亢奮 → 紅色，焦躁 → 黃色，低落 → 灰色）
 const EMOTION_DOT: Record<string, string> = {
  適當: "#34c759",
  亢奮: "#fb2c36",
@@ -143,7 +143,7 @@ export function HistorySessionView({
                {/* 彩色圓點 + 情緒文字 */}
                <span className="text-[14px] font-medium flex items-center gap-1.5" style={{ color: dotColor }}>
                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: dotColor }} /> {/* 情緒顏色圓點 */}
-                 {round.emotion} {/* 情緒文字（正向、穩定…） */}
+                 {round.emotion} {/* 情緒文字（適當、亢奮、焦躁、低落） */}
                </span>
 
 
