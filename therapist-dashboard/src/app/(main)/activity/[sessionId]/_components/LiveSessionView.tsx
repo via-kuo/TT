@@ -96,7 +96,7 @@ export function LiveSessionView() {
 
 
        {/* 左欄 */}
-       <div className="flex-1 flex flex-col gap-[clamp(10px,1.5vw,24px)]">
+       <div className="flex-1 flex flex-col gap-[clamp(4px,0.8vw,14px)]">
 
 
          {/* 場景 / 回應切換 */}
@@ -127,11 +127,16 @@ export function LiveSessionView() {
 
 
          {/* AI 建議 */}
+         {/* 外層容器：淺灰背景卡片，內距與間距使用 clamp 隨視窗縮放 */}
          <div className="bg-[#f9fafb] rounded-xl p-[clamp(12px,1.8vw,32px)] flex flex-col gap-[clamp(8px,1vw,20px)]">
+           {/* 區塊標題 */}
            <h3 className="text-[clamp(14px,1.6vw,20px)] font-medium text-[#0a0a0a]">AI 建議追問語（參考用）</h3>
+           {/* 引導說明文字 */}
            <p className="text-[clamp(13px,1.3vw,17px)] text-[#0a0a0a]">本回合可引導的方向：</p>
+           {/* 建議列表：逐項渲染 aiSuggestions */}
            <div className="flex flex-col gap-[clamp(8px,1vw,16px)]">
              {session.aiSuggestions.map((s, i) => (
+               // 每個建議顯示為可點擊按鈕，目前無送出行為
                <button
                  key={i}
                  type="button"
