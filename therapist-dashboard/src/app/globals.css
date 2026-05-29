@@ -12,7 +12,6 @@
   --font-mono: var(--font-geist-mono);
   --font-hand: var(--font-caveat);
   --font-display: var(--font-fredoka);
-  --breakpoint-xl: 1400px;
 }
 
 @media (prefers-color-scheme: dark) {
