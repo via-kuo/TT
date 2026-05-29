@@ -9,11 +9,10 @@ import type { Session, SessionRound, Case } from "@/lib/types"; // 引入型別�
 
 // 情緒文字對應的顏色（正向/穩定 → 綠色，激動 → 紅色，焦慮 → 黃色，沉默 → 灰色）
 const EMOTION_DOT: Record<string, string> = {
- 正向: "#34c759",
- 穩定: "#34c759",
- 激動: "#fb2c36",
- 焦慮: "#f0c52c",
- 沉默: "#888888",
+ 適當: "#34c759",
+ 亢奮: "#fb2c36",
+ 焦躁: "#f0c52c",
+ 低落: "#888888",
 };
 
 
