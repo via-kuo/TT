@@ -33,6 +33,10 @@ public class HandCursorRemapper : MonoBehaviour
     [Tooltip("開始操作後，正規化高度低於這個值就放手歸位（建議比 raiseThreshold 低一點，避免邊緣抖動）")]
     [Range(0f, 1f)] public float lowerThreshold = 0.08f;
 
+    [Header("關節短暫遮擋緩衝")]
+    [Tooltip("手伸到身體前方（例如靠近麥克風按鈕）時，Kinect 常會短暫追蹤不到手。連續多少 frame 都追蹤不到才視為「手放下了」並歸位，避免單幀誤判造成的閃爍/跳動")]
+    public int untrackedDebounceFrames = 10;
+
     private RectTransform _rect;
     private Canvas _canvas;
     private KinectManager _kinect;
@@ -43,6 +47,9 @@ public class HandCursorRemapper : MonoBehaviour
     private bool _isActive = false;
     // 按鈕觸發歸位後，要求使用者先把手放下才能再次舉手操作，避免同一個按鈕被連續誤觸
     private bool _waitingForLower = false;
+    // 最近一次有效追蹤時計算出的目標位置，短暫遮擋期間繼續朝這個位置平滑移動，而不是瞬間跳到角落
+    private Vector2 _lastGoalPos;
+    private int _untrackedFrames = 0;
 
     void Start()
     {
@@ -70,76 +77,103 @@ public class HandCursorRemapper : MonoBehaviour
     {
         if (_canvas == null) return;
         Vector2 canvasSize = _canvas.GetComponent<RectTransform>().sizeDelta;
-        Vector2 goalPos = GetCornerPos(canvasSize);
+        Vector2 cornerPos = GetCornerPos(canvasSize);
+        Vector2 goalPos = cornerPos;
 
-        bool trackingOk =
-            CalibrationData.IsCalibrated &&
-            _kinect != null && _kinect.IsInitialized();
+        // ── 這些是「非瞬斷」狀態，直接視為手放下並重置一切 ──────
+        bool hardFail =
+            !CalibrationData.IsCalibrated ||
+            _kinect == null || !_kinect.IsInitialized();
 
-        long userId = trackingOk ? _kinect.GetPrimaryUserID() : 0;
-        trackingOk = trackingOk && userId != 0;
-
-        int jointIndex = useRightHand
-            ? (int)KinectInterop.JointType.HandRight
-            : (int)KinectInterop.JointType.HandLeft;
-
-        trackingOk = trackingOk && _kinect.IsJointTracked(userId, jointIndex);
-
-        if (trackingOk)
+        long userId = 0;
+        if (!hardFail)
         {
-            Vector3 handWorld = _kinect.GetJointPosition(userId, jointIndex);
+            userId = _kinect.GetPrimaryUserID();
+            hardFail = userId == 0;
+        }
 
-            // ── 用 CalibrationData 正規化 ────────────────────
-            float rawNx = Mathf.InverseLerp(
-                CalibrationData.WorldXMin,
-                CalibrationData.WorldXMax,
-                handWorld.x);
-
-            float rawNy = Mathf.InverseLerp(
-                CalibrationData.WorldYMin,
-                CalibrationData.WorldYMax,
-                handWorld.y);
-
-            // 使用 Clamp01，即使手超出範圍，依然保持游標運作並限制在邊緣
-            float nx = Mathf.Clamp01(rawNx);
-            float ny = Mathf.Clamp01(rawNy);
-
-            if (_waitingForLower)
-            {
-                // 按鈕觸發後，等手真正放下（低於 lowerThreshold）才解除鎖定
-                if (ny < lowerThreshold)
-                    _waitingForLower = false;
-            }
-            else
-            {
-                if (!_isActive && ny >= raiseThreshold)
-                    _isActive = true;
-                else if (_isActive && ny < lowerThreshold)
-                    _isActive = false;
-            }
-
-            if (_isActive)
-            {
-                float targetX = Mathf.Lerp(marginLeft, marginRight, nx) * canvasSize.x;
-                float targetY = Mathf.Lerp(marginBottom, marginTop, ny) * canvasSize.y;
-
-                // 【安全修正】：確保 targetY 絕對不會低於你設定的安全高度
-                targetY = Mathf.Max(targetY, minCanvasY);
-
-                goalPos = new Vector2(targetX, targetY);
-            }
-
-            if (Time.frameCount % 5 == 0)
-            {
-                Debug.Log($"[Cursor] active={_isActive} waitingForLower={_waitingForLower} hand={handWorld:F3} | " +
-                  $"nx={nx:F3} ny={ny:F3} | goal=({goalPos.x:F1},{goalPos.y:F1})");
-            }
+        if (hardFail)
+        {
+            _isActive = false;
+            _waitingForLower = false;
+            _untrackedFrames = 0;
+            _lastGoalPos = cornerPos;
+            goalPos = cornerPos;
         }
         else
         {
-            // 沒追蹤到手：視為手放下了，解除歸位鎖定，回到左下角待命
-            _isActive = false;
-            _waitingForLower = false;
+            int jointIndex = useRightHand
+                ? (int)KinectInterop.JointType.HandRight
+                : (int)KinectInterop.JointType.HandLeft;
+
+            bool jointTracked = _kinect.IsJointTracked(userId, jointIndex);
+
+            if (!jointTracked)
+            {
+                // 手部關節短暫追蹤不到（常見於手伸到身體/臉部前方，例如按麥克風按鈕）
+                // 在 debounce 期間內，繼續朝最後一次有效的目標位置移動，不要瞬間跳到角落
+                _untrackedFrames++;
+                if (_untrackedFrames >= untrackedDebounceFrames)
+                {
+                    _isActive = false;
+                    _waitingForLower = false;
+                    _lastGoalPos = cornerPos;
+                }
+                goalPos = _lastGoalPos;
+            }
+            else
+            {
+                _untrackedFrames = 0;
+                Vector3 handWorld = _kinect.GetJointPosition(userId, jointIndex);
+
+                // ── 用 CalibrationData 正規化 ────────────────────
+                float rawNx = Mathf.InverseLerp(
+                    CalibrationData.WorldXMin,
+                    CalibrationData.WorldXMax,
+                    handWorld.x);
+
+                float rawNy = Mathf.InverseLerp(
+                    CalibrationData.WorldYMin,
+                    CalibrationData.WorldYMax,
+                    handWorld.y);
+
+                // 使用 Clamp01，即使手超出範圍，依然保持游標運作並限制在邊緣
+                float nx = Mathf.Clamp01(rawNx);
+                float ny = Mathf.Clamp01(rawNy);
+
+                if (_waitingForLower)
+                {
+                    // 按鈕觸發後，等手真正放下（低於 lowerThreshold）才解除鎖定
+                    if (ny < lowerThreshold)
+                        _waitingForLower = false;
+                }
+                else
+                {
+                    if (!_isActive && ny >= raiseThreshold)
+                        _isActive = true;
+                    else if (_isActive && ny < lowerThreshold)
+                        _isActive = false;
+                }
+
+                if (_isActive)
+                {
+                    float targetX = Mathf.Lerp(marginLeft, marginRight, nx) * canvasSize.x;
+                    float targetY = Mathf.Lerp(marginBottom, marginTop, ny) * canvasSize.y;
+
+                    // 【安全修正】：確保 targetY 絕對不會低於你設定的安全高度
+                    targetY = Mathf.Max(targetY, minCanvasY);
+
+                    goalPos = new Vector2(targetX, targetY);
+                }
+
+                _lastGoalPos = goalPos;
+
+                if (Time.frameCount % 5 == 0)
+                {
+                    Debug.Log($"[Cursor] active={_isActive} waitingForLower={_waitingForLower} hand={handWorld:F3} | " +
+                      $"nx={nx:F3} ny={ny:F3} | goal=({goalPos.x:F1},{goalPos.y:F1})");
+                }
+            }
         }
 
         // ── 平滑（指數移動平均），讓「歸位 ↔ 跟隨」之間的過渡不會跳格 ──

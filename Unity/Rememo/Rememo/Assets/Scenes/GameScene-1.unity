@@ -347,6 +347,9 @@ MonoBehaviour:
   aiText: {fileID: 1133395053}
   sceneImage: {fileID: 1056907269}
   inputText: {fileID: 1676628713}
+  serverUrl: ws://localhost:8000/ws/stt
+  sampleRate: 16000
+  maxRecordSeconds: 60
   testImages: []
 --- !u!114 &231164216
 MonoBehaviour:
@@ -1012,6 +1015,9 @@ MonoBehaviour:
   aiText: {fileID: 0}
   sceneImage: {fileID: 0}
   inputText: {fileID: 0}
+  serverUrl: ws://localhost:8000/ws/stt
+  sampleRate: 16000
+  maxRecordSeconds: 60
   testImages: []
 --- !u!1 &695202853
 GameObject:
@@ -2373,7 +2379,7 @@ MonoBehaviour:
   useRightHand: 1
   raiseThreshold: 0.15
   lowerThreshold: 0.02
-  hideDebounceFrames: 15
+  untrackedDebounceFrames: 35
 --- !u!1 &1541757720
 GameObject:
   m_ObjectHideFlags: 0
