@@ -15,11 +15,13 @@ public class KinectButtonHover : MonoBehaviour
     private Button _currentButton = null;
     private RectTransform _rt;
     private Canvas _canvas;
+    private HandCursorRemapper _cursorRemapper;
 
     void Start()
     {
         _rt = transform as RectTransform;
         _canvas = GetComponentInParent<Canvas>();
+        _cursorRemapper = GetComponent<HandCursorRemapper>();
         Debug.Log($"[Hover] progressRing is null: {progressRing == null}");
         ResetRing();
     }
@@ -85,6 +87,8 @@ public class KinectButtonHover : MonoBehaviour
             {
                 _currentButton.onClick.Invoke();
                 ResetRing();
+                if (_cursorRemapper != null)
+                    _cursorRemapper.ResetToCorner();
             }
         }
         else

@@ -6,6 +6,7 @@ using UnityEngine;
 /// 2. 用 CalibrationData 的 WorldX/YMin/Max 做 InverseLerp（正規化）
 /// 3. 改用 Clamp01 避免超出範圍時腳本直接 return 造成卡死
 /// 4. 套用輸出邊界與最低高度限制後，寫回 RectTransform.anchoredPosition
+/// 5. 游標永不隱藏：未舉手/未追蹤時固定停在左下角，舉手後才開始跟隨手部
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class HandCursorRemapper : MonoBehaviour
@@ -26,11 +27,22 @@ public class HandCursorRemapper : MonoBehaviour
     [Header("追蹤哪隻手")]
     public bool useRightHand = true;
 
+    [Header("舉手才開始操作")]
+    [Tooltip("手部正規化高度（0~1，相對於校正的 Y 範圍）超過這個值才開始跟隨手部移動")]
+    [Range(0f, 1f)] public float raiseThreshold = 0.15f;
+    [Tooltip("開始操作後，正規化高度低於這個值就放手歸位（建議比 raiseThreshold 低一點，避免邊緣抖動）")]
+    [Range(0f, 1f)] public float lowerThreshold = 0.08f;
+
     private RectTransform _rect;
     private Canvas _canvas;
     private KinectManager _kinect;
     private Vector2 _smoothedPos;
     private bool _initialized = false;
+
+    // 是否正在跟隨手部移動（false = 停在左下角）
+    private bool _isActive = false;
+    // 按鈕觸發歸位後，要求使用者先把手放下才能再次舉手操作，避免同一個按鈕被連續誤觸
+    private bool _waitingForLower = false;
 
     void Start()
     {
@@ -39,68 +51,109 @@ public class HandCursorRemapper : MonoBehaviour
         _kinect = KinectManager.Instance;
     }
 
+    /// <summary>
+    /// 由按鈕觸發（例如 KinectButtonHover 完成 dwell click 後）呼叫，
+    /// 讓游標歸位到左下角，並要求使用者放下手再重新舉起才能繼續操作。
+    /// </summary>
+    public void ResetToCorner()
+    {
+        _isActive = false;
+        _waitingForLower = true;
+    }
+
+    Vector2 GetCornerPos(Vector2 canvasSize)
+    {
+        return new Vector2(marginLeft * canvasSize.x, marginBottom * canvasSize.y);
+    }
+
     void LateUpdate()
     {
-        if (!CalibrationData.IsCalibrated) return;
-        if (_kinect == null || !_kinect.IsInitialized()) return;
+        if (_canvas == null) return;
+        Vector2 canvasSize = _canvas.GetComponent<RectTransform>().sizeDelta;
+        Vector2 goalPos = GetCornerPos(canvasSize);
 
-        long userId = _kinect.GetPrimaryUserID();
-        if (userId == 0) return;
+        bool trackingOk =
+            CalibrationData.IsCalibrated &&
+            _kinect != null && _kinect.IsInitialized();
 
-        // ── 1. 取得手部世界座標 ──────────────────────────────
+        long userId = trackingOk ? _kinect.GetPrimaryUserID() : 0;
+        trackingOk = trackingOk && userId != 0;
+
         int jointIndex = useRightHand
             ? (int)KinectInterop.JointType.HandRight
             : (int)KinectInterop.JointType.HandLeft;
 
-        if (!_kinect.IsJointTracked(userId, jointIndex)) return;
+        trackingOk = trackingOk && _kinect.IsJointTracked(userId, jointIndex);
 
-        Vector3 handWorld = _kinect.GetJointPosition(userId, jointIndex);
+        if (trackingOk)
+        {
+            Vector3 handWorld = _kinect.GetJointPosition(userId, jointIndex);
 
-        // ── 2. 用 CalibrationData 正規化 ────────────────────
-        float rawNx = Mathf.InverseLerp(
-            CalibrationData.WorldXMin,
-            CalibrationData.WorldXMax,
-            handWorld.x);
+            // ── 用 CalibrationData 正規化 ────────────────────
+            float rawNx = Mathf.InverseLerp(
+                CalibrationData.WorldXMin,
+                CalibrationData.WorldXMax,
+                handWorld.x);
 
-        float rawNy = Mathf.InverseLerp(
-            CalibrationData.WorldYMin,
-            CalibrationData.WorldYMax,
-            handWorld.y);
+            float rawNy = Mathf.InverseLerp(
+                CalibrationData.WorldYMin,
+                CalibrationData.WorldYMax,
+                handWorld.y);
 
-        // 使用 Clamp01，即使手超出範圍，依然保持游標運作並限制在邊緣
-        float nx = Mathf.Clamp01(rawNx);
-        float ny = Mathf.Clamp01(rawNy);
+            // 使用 Clamp01，即使手超出範圍，依然保持游標運作並限制在邊緣
+            float nx = Mathf.Clamp01(rawNx);
+            float ny = Mathf.Clamp01(rawNy);
 
-        // ── 3. 套用輸出邊界，映射到 Canvas 座標 ─────────────
-        Vector2 canvasSize = _canvas.GetComponent<RectTransform>().sizeDelta;
+            if (_waitingForLower)
+            {
+                // 按鈕觸發後，等手真正放下（低於 lowerThreshold）才解除鎖定
+                if (ny < lowerThreshold)
+                    _waitingForLower = false;
+            }
+            else
+            {
+                if (!_isActive && ny >= raiseThreshold)
+                    _isActive = true;
+                else if (_isActive && ny < lowerThreshold)
+                    _isActive = false;
+            }
 
-        float targetX = Mathf.Lerp(marginLeft, marginRight, nx) * canvasSize.x;
-        float targetY = Mathf.Lerp(marginBottom, marginTop, ny) * canvasSize.y;
+            if (_isActive)
+            {
+                float targetX = Mathf.Lerp(marginLeft, marginRight, nx) * canvasSize.x;
+                float targetY = Mathf.Lerp(marginBottom, marginTop, ny) * canvasSize.y;
 
-        // 【安全修正】：確保 targetY 絕對不會低於你設定的安全高度
-        targetY = Mathf.Max(targetY, minCanvasY);
+                // 【安全修正】：確保 targetY 絕對不會低於你設定的安全高度
+                targetY = Mathf.Max(targetY, minCanvasY);
 
-        // ── 4. 平滑（指數移動平均）────────────────────────────
+                goalPos = new Vector2(targetX, targetY);
+            }
+
+            if (Time.frameCount % 5 == 0)
+            {
+                Debug.Log($"[Cursor] active={_isActive} waitingForLower={_waitingForLower} hand={handWorld:F3} | " +
+                  $"nx={nx:F3} ny={ny:F3} | goal=({goalPos.x:F1},{goalPos.y:F1})");
+            }
+        }
+        else
+        {
+            // 沒追蹤到手：視為手放下了，解除歸位鎖定，回到左下角待命
+            _isActive = false;
+            _waitingForLower = false;
+        }
+
+        // ── 平滑（指數移動平均），讓「歸位 ↔ 跟隨」之間的過渡不會跳格 ──
         if (!_initialized)
         {
-            _smoothedPos = new Vector2(targetX, targetY);
+            _smoothedPos = goalPos;
             _initialized = true;
         }
         else
         {
-            _smoothedPos = Vector2.Lerp(_smoothedPos, new Vector2(targetX, targetY), smoothing);
+            _smoothedPos = Vector2.Lerp(_smoothedPos, goalPos, smoothing);
         }
 
-        // 為了避免 Log 刷太快影響效能，可以觀察數值是否正常
-        if (Time.frameCount % 5 == 0) 
-        {
-            Debug.Log($"[Cursor] hand={handWorld:F3} | " +
-              $"nx={nx:F3}(raw={rawNx:F3}) ny={ny:F3}(raw={rawNy:F3}) | " +
-              $"target=({targetX:F1},{targetY:F1}) | " +
-              $"smoothed=({_smoothedPos.x:F1},{_smoothedPos.y:F1})");
-        }
-
-        // ── 5. 寫回（用 anchoredPosition，Canvas 左下角為原點）
+        // ── 寫回（用 anchoredPosition，Canvas 左下角為原點）
         _rect.anchoredPosition = _smoothedPos;
     }
 }

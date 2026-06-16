@@ -2371,6 +2371,9 @@ MonoBehaviour:
   minCanvasY: 50
   smoothing: 0.2
   useRightHand: 1
+  raiseThreshold: 0.15
+  lowerThreshold: 0.02
+  hideDebounceFrames: 15
 --- !u!1 &1541757720
 GameObject:
   m_ObjectHideFlags: 0
