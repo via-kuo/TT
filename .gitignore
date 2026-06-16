@@ -1,15 +1,20 @@
-# Python 垃圾檔案
-**/__pycache__/
-*.py[cod]
-get-pip.py
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
 
 # 資料庫與持久化數據 (排除實體資料)
 postgres_data/
 ollama_data/
 postgres_db/
 pgadmin/
+qdrant_storage/
 
-# 媒體與大型壓縮檔 (剛才的大魔王)
+# 媒體與大型壓縮檔
 *.wav
 *.mp4
 *.zip
@@ -21,8 +26,6 @@ pgadmin/
 *.npy
 *.data-00000-of-00001
 
-
-
 # AI 模型與權重檔 (絕對不要上傳)
 models/
 *.pth
@@ -32,6 +35,7 @@ models/
 
 # 環境與工具
 .env
+.env.local
 **/venv/
 .venv/
 .git/
@@ -82,5 +86,15 @@ Kinect-v2-with-MS-SDK*/
 **/Rememo/Assembly-CSharp.csproj
 **/Rememo/Assembly-CSharp-Editor.csproj
 *.csproj.lscache
-.claude/
-therapist-dashboard/
+
+# 生成的媒體檔案（圖片、音訊）
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
