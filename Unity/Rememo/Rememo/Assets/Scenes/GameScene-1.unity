@@ -2369,7 +2369,7 @@ MonoBehaviour:
   marginBottom: 0
   marginTop: 0.9
   minCanvasY: 50
-  smoothing: 0.15
+  smoothing: 0.2
   useRightHand: 1
 --- !u!1 &1541757720
 GameObject:
