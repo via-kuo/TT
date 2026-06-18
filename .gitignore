@@ -74,6 +74,19 @@ Kinect-v2-with-MS-SDK*/
 **/Assets/K2Examples/Plugins.meta
 **/Assets/K2Examples/Resources.meta
 
+# Kinect SDK 執行時期 DLL（在專案根目錄）
+**/Rememo/*.dll
+**/Rememo/*.ini
+**/Rememo/*.data
+**/Rememo/NuiDatabase/
+**/Rememo/OpenNI2/
+**/Rememo/vgbtechs/
+
+# Unity 自動產生
+**/Rememo/Assembly-CSharp.csproj
+**/Rememo/Assembly-CSharp-Editor.csproj
+*.csproj.lscache
+
 # 生成的媒體檔案（圖片、音訊）
 media/
 
