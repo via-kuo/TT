@@ -42,6 +42,9 @@ STATS_FILE = OUTPUT_DIR / "stats.json"
 MODEL = "claude-sonnet-4-6"
 REQUEST_DELAY = 1.0  # 每次 API 呼叫之間的間隔（秒），避免 rate limit
 
+# 5W1H 優先順序（對齊 orchestrator.py _W_ORDER）
+_W_ORDER = ["Where", "Who", "What", "When", "How", "Why"]
+
 # 推理時的 system prompt（需與 orchestrator._generate_first_question 完全一致）
 SYSTEM_CONTENT_STEP = (
     "你是溫柔的懷舊療法引導師，正在透過語音陪伴日間照護中心的長者。"
@@ -714,25 +717,41 @@ def build_track_c_rejection_prompt(chosen_response: str, rule_name: str, rule_de
 問題：..."""
 
 
-def build_track_c_inference_prompt(sc: dict) -> list[dict]:
+def build_track_c_inference_prompt(
+    sc: dict,
+    covered_w: list[str] | None = None,
+    skipped_w: list[str] | None = None,
+    taboos: list[str] | None = None,
+) -> list[dict]:
     """推理時的 prompt，包含長者剛才說的話，讓模型知道要承接什麼。"""
     elements = "、".join(sc["scene_elements"])
+    covered_w = covered_w or []
+    skipped_w = skipped_w or []
+    taboos = taboos or []
+
+    covered_str = "、".join(covered_w) if covered_w else "無"
+    uncovered = [w for w in _W_ORDER if w not in covered_w and w not in skipped_w]
+    uncovered_str = "、".join(uncovered) if uncovered else "無（已全部涵蓋）"
+    taboo_str = "、".join(taboos) if taboos else "無"
+
     system_content = (
         "你是溫柔的懷舊療法引導師，正在透過語音陪伴日間照護中心的長者。"
         "長者可能有輕微認知障礙，你說的話會直接被念出來給長者聽。"
         "每次聽完長者說話，先用1-2句溫暖的話承接他的情緒，再自然問下一個問題。"
     )
-    user_content = f"""長者剛才說：
-「{sc['elder_response']}」
-
-【眼前畫面元素】
-{elements}
-
-請先承接長者的情緒（1-2句，符合他當下的心情），再問下一個問題（≤15字，開頭含畫面元素，開放式）。
-
-【輸出格式】
-承接語：（1-2句，30字以內）
-問題：（≤15字）"""
+    user_content = (
+        f"長者剛才說：\n「{sc['elder_response']}」\n"
+        f"\n【眼前畫面元素】\n{elements}\n"
+        f"\n【已涵蓋的W維度】\n{covered_str}\n"
+        f"\n【尚未涵蓋的W維度】\n{uncovered_str}\n"
+        f"\n【禁忌話題（絕對不可提及）】\n{taboo_str}\n"
+        f"\n請先承接長者的情緒（1-2句，符合他當下的心情），"
+        f"再順著長者說的話問下一個問題（≤15字，開頭含畫面元素，開放式）。\n"
+        f"問題要自然跟著對話走，同時盡量帶出【尚未涵蓋的W維度】中的某一個。\n"
+        f"\n【輸出格式】\n"
+        f"承接語：（1-2句，30字以內）\n"
+        f"問題：（≤15字）"
+    )
 
     return [
         {"role": "system", "content": system_content},
@@ -786,6 +805,8 @@ def build_inference_prompt(
     scene: dict,
     covered_w: list[str],
     topic_category: list[str] | None = None,
+    elder_response: str = "",
+    taboos: list[str] | None = None,
 ) -> list[dict]:
     """
     組出推理時送給 llama3 的 messages 格式（/api/chat）。
@@ -794,39 +815,45 @@ def build_inference_prompt(
     elements_str = "、".join(scene["elements"])
     covered_str = "、".join(covered_w) if covered_w else "無"
     topic_str = "、".join(topic_category) if topic_category else "未指定"
+    taboo_str = "、".join(taboos) if taboos else "無"
 
     step_instructions = {
         "STEP1": "生成第一個【開場問題】，引導長者進入回憶（優先問 Where 或 What）",
-        "STEP2": "根據長者的回應，生成一個自然的【追問】（挖掘 Who 或 What）",
-        "STEP3": "生成一個【補充問題】，探索還未涵蓋的W維度（避免 Why）",
+        "STEP2": "根據長者剛才說的話，順著內容自然追問，不限制哪個W，完全跟著長者走",
+        "STEP3": "生成一個【補充問題】，探索還未涵蓋的W維度（Why 僅在長者狀態良好時詢問）",
+    }
+
+    step_labels = {
+        "STEP1": "STEP1開場",
+        "STEP2": "STEP2自由追問",
+        "STEP3": "STEP3補問",
     }
 
     system_content = (
         "你是溫柔的懷舊療法引導師，正在透過語音陪伴日間照護中心的長者。"
         "長者可能有輕微認知障礙，你說的話會直接被念出來給長者聽。"
-        "問題必須念起來自然、溫和、不超過15個字，且開頭要包含畫面中看得到的物件。"
+        "問題必須念起來自然、溫和、不超過15個字，且開頭要包含畫面中看得到的具體物件。"
     )
 
-    user_content = f"""【長者資料】
-姓名：{elder['name']}
-職業背景：{elder['main_occupation']}
-今日主題：{elder['today_topic']}
-懷舊治療主題類別：{topic_str}
+    elder_section = f"\n【長者剛才說的話】\n{elder_response}\n" if elder_response else ""
 
-【眼前畫面元素】
-{elements_str}
-
-【已涵蓋的W維度】
-{covered_str}
-
-【任務】
-{step_instructions[step]}
-
-【輸出格式】
-場景文字：（30-60字，給長者聽的場景描述）
-問題：（≤15字，開放式，開頭要有畫面中的物件）
-問題類型：{step}{'開場' if step == 'STEP1' else '追問' if step == 'STEP2' else '補問'}
-本回合已涵蓋的W："""
+    user_content = (
+        f"【長者資料】\n"
+        f"姓名：{elder['name']}\n"
+        f"職業背景：{elder['main_occupation']}\n"
+        f"今日主題：{elder['today_topic']}\n"
+        f"懷舊治療主題類別：{topic_str}\n"
+        f"\n【眼前畫面元素】\n{elements_str}\n"
+        f"\n【已涵蓋的W維度】\n{covered_str}\n"
+        f"{elder_section}"
+        f"\n【禁忌話題（絕對不可提及）】\n{taboo_str}\n"
+        f"\n【任務】\n{step_instructions[step]}\n"
+        f"\n【輸出格式】\n"
+        f"場景文字：（30-60字，給長者聽的場景描述）\n"
+        f"問題：（≤15字，開放式，開頭要有畫面中的具體物件）\n"
+        f"問題類型：{step_labels[step]}\n"
+        f"本回合已涵蓋的W："
+    )
 
     return [
         {"role": "system", "content": system_content},
@@ -880,7 +907,17 @@ def generate_track_a(scenarios: list[dict]) -> list[dict]:
                 print(f"    ✗ chosen 失敗：{e}")
                 continue
 
-            inference_prompt = build_inference_prompt(step, elder, scene, covered_w, sc.get("topic_category"))
+            step_responses = {
+                "STEP1": "",
+                "STEP2": sc.get("elder_step1_response", ""),
+                "STEP3": sc.get("elder_step2_response", ""),
+            }
+            inference_prompt = build_inference_prompt(
+                step, elder, scene, covered_w,
+                topic_category=sc.get("topic_category"),
+                elder_response=step_responses[step],
+                taboos=elder.get("taboos", []),
+            )
 
             for rule_name, rule_desc in QUESTION_REJECTION_RULES.items():
                 print(f"    [{rule_name}] 生成 rejected...")
@@ -955,6 +992,14 @@ def generate_track_b() -> list[dict]:
     return pairs
 
 
+def _covered_w_before(next_w_str: str) -> list[str]:
+    """從 next_w 描述字串（如 "Who（...）"）推算已涵蓋的W（目標W之前的所有W）。"""
+    target = next_w_str.split("（")[0].strip()
+    if target not in _W_ORDER:
+        return []
+    return _W_ORDER[:_W_ORDER.index(target)]
+
+
 def generate_track_c() -> list[dict]:
     """Track C：情緒感知的承接 + 問題 DPO 對。"""
     pairs = []
@@ -970,7 +1015,8 @@ def generate_track_c() -> list[dict]:
             print(f"    ✗ chosen 失敗：{e}")
             continue
 
-        inference_prompt = build_track_c_inference_prompt(sc)
+        covered_w = _covered_w_before(sc["next_w"])
+        inference_prompt = build_track_c_inference_prompt(sc, covered_w=covered_w, skipped_w=[], taboos=[])
 
         for rule_name, rule_desc in TRACK_C_REJECTION_RULES.items():
             print(f"    [{rule_name}] 生成 rejected...")
