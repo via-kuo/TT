@@ -7,6 +7,9 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 
+# DPO 訓練資料（自動產生，不入版控）
+dpo/data/
+
 # 資料庫與持久化數據 (排除實體資料)
 postgres_data/
 ollama_data/

@@ -234,7 +234,7 @@ class TherapyOrchestrator:
         # ── 5W1H 全部涵蓋 → 結束回合 ─────────────────────────────
         if not self._next_uncovered_w(covered_w, skipped_w):
             print("  → 5W1H 全部涵蓋，結束回合")
-            return self._end_action(state)
+            return await self._end_action(state, user, elder_response)
 
         # ── 話題能否繼續？ ────────────────────────────────────────
         if quick_end:
@@ -305,11 +305,17 @@ class TherapyOrchestrator:
             "state": new_state,
         }
 
-    def _end_action(self, state: dict) -> dict:
+    async def _end_action(self, state: dict, user: dict = None, elder_response: str = "") -> dict:
         current_round = state["round"]
         if current_round >= 3:
             print("  → 三回合完成，療程結束")
-            return {"action": "end_session", "scene_text": "", "question": "", "state": None}
+            closing = await self._generate_closing(user, elder_response) if user else {"closing_text": "", "question": ""}
+            return {
+                "action": "end_session",
+                "scene_text": closing["closing_text"],
+                "question": closing["question"],
+                "state": None,
+            }
         print(f"  → 回合 {current_round} 結束，進入回合 {current_round + 1}")
         return {
             "action": "end_round",
@@ -331,7 +337,7 @@ class TherapyOrchestrator:
         """話題結束後：找下一個W補問，或結束回合。Why 需長者狀態良好才問。"""
         next_w = self._next_uncovered_w(covered_w, skipped_w)
         if not next_w:
-            return self._end_action(state)
+            return await self._end_action(state, user, elder_response)
 
         if next_w == "Why":
             elder_state_good = await self._check_elder_state_good(elder_response)
@@ -340,7 +346,7 @@ class TherapyOrchestrator:
                 skipped_w.append("Why")
                 next_w = self._next_uncovered_w(covered_w, skipped_w)
                 if not next_w:
-                    return self._end_action(state)
+                    return await self._end_action(state, user, elder_response)
 
         return await self._ask_supplement(
             user, scene_els, covered_w, skipped_w, next_w, state
@@ -421,6 +427,53 @@ class TherapyOrchestrator:
         )
         raw = await self.llm.ask(prompt)
         return raw.strip().upper().startswith("Y")
+
+    async def _generate_closing(self, user: dict, elder_response: str = "") -> dict:
+        """收尾引導：三回合結束後帶領長者從回憶回到現實，詢問感受或正向回憶。"""
+        system_content = (
+            "你是溫柔的懷舊療法引導師，正在透過語音陪伴日間照護中心的長者。"
+            "長者可能有輕微認知障礙，你說的話會直接被念出來給長者聽。"
+            "三回合懷舊療程剛結束，你要溫柔地帶領長者回到現實，"
+            "並以一句輕柔的問題詢問他們現在的感受或正向回憶，為今天的療程畫上句點。"
+        )
+        last_response_section = (
+            f"\n【長者最後說的話】\n{elder_response}\n" if elder_response else ""
+        )
+        user_content = (
+            f"【長者資料】\n"
+            f"姓名：{user['name']}\n"
+            f"今日主題：{user['today_topic']}\n"
+            f"{last_response_section}"
+            f"\n【任務】\n"
+            f"三回合療程剛剛結束。請設計收尾引導，需包含：\n"
+            f"1. 收尾語：1-2句，溫暖肯定長者今天的分享，語氣輕鬆自然，不誇張\n"
+            f"2. 問題：一句輕柔的開放式問題（≤15字），詢問以下其中一項：\n"
+            f"   - 現在的感受或心情（例：「現在心裡感覺怎麼樣呢？」）\n"
+            f"   - 今天最讓長者開心的回憶（例：「今天哪個故事讓您最開心？」）\n"
+            f"   - 想帶走的正向感受（例：「今天有什麼讓您覺得溫暖的事？」）\n"
+            f"\n【輸出格式】\n"
+            f"收尾語：（1-2句，30字以內）\n"
+            f"問題：（≤15字）"
+        )
+        messages = [
+            {"role": "system", "content": system_content},
+            {"role": "user", "content": user_content},
+        ]
+        raw = await self.llm.chat(messages)
+        return self._parse_closing_response(raw)
+
+    def _parse_closing_response(self, raw: str) -> dict:
+        """解析收尾引導的輸出。"""
+        result: dict = {"closing_text": "", "question": ""}
+        for line in raw.splitlines():
+            line = line.strip()
+            if line.startswith("收尾語："):
+                result["closing_text"] = line[len("收尾語："):].strip()
+            elif line.startswith("問題："):
+                result["question"] = line[len("問題："):].strip()
+        if not result["question"]:
+            result["question"] = raw.strip()
+        return result
 
     # ══════════════════════════════════════════════════════════════
     # 私有：問題生成

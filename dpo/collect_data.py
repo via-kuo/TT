@@ -2,14 +2,18 @@
 """
 DPO 訓練資料收集腳本
 
-使用 Claude claude-sonnet-4-6 為 llama3:8b-instruct-q4_K_M 生成偏好訓練對。
+使用混合模型策略為 llama3:8b-instruct-q4_K_M 生成偏好訓練對：
+  chosen  → claude-sonnet-4-6（高品質）
+  rejected → claude-haiku-4-5-20251001（只需違規，省 ~60% 費用）
 
 目標使用者：60-75歲長者，可能有輕微認知障礙，AI透過TTS直接說話。
 因此 chosen 的問題必須念起來自然，不能有書面語的距離感。
 
-兩條軌跡：
+四條軌跡：
   Track A — 問題品質（STEP1開場、STEP2追問、STEP3補問 × 7種違規）
   Track B — 情緒引導（長者出現負面情緒時的回應）
+  Track C — 情緒感知承接 + 下一個問題（正常對話中）
+  Track D — 收尾引導（三回合結束後帶長者回到現實 × 7種違規）
 
 執行前設定：
   export ANTHROPIC_API_KEY="sk-ant-..."
@@ -39,7 +43,8 @@ OUTPUT_DIR = Path(__file__).parent / "data"
 OUTPUT_FILE = OUTPUT_DIR / "train.jsonl"
 STATS_FILE = OUTPUT_DIR / "stats.json"
 
-MODEL = "claude-sonnet-4-6"
+MODEL_CHOSEN   = "claude-sonnet-4-6"         # chosen：高品質回應需要
+MODEL_REJECTED = "claude-haiku-4-5-20251001"  # rejected：刻意違規，Haiku 足夠
 REQUEST_DELAY = 1.0  # 每次 API 呼叫之間的間隔（秒），避免 rate limit
 
 # 5W1H 優先順序（對齊 orchestrator.py _W_ORDER）
@@ -62,6 +67,13 @@ SYSTEM_CONTENT_TRACK_C = (
     "你是溫柔的懷舊療法引導師，正在透過語音陪伴日間照護中心的長者。"
     "長者可能有輕微認知障礙，你說的話會直接被念出來給長者聽。"
     "每次聽完長者說話，先用1-2句溫暖的話承接他的情緒，再自然問下一個問題。"
+)
+
+SYSTEM_CONTENT_TRACK_D = (
+    "你是溫柔的懷舊療法引導師，正在透過語音陪伴日間照護中心的長者。"
+    "長者可能有輕微認知障礙，你說的話會直接被念出來給長者聽。"
+    "三回合懷舊療程剛結束，你要溫柔地帶領長者回到現實，"
+    "並以一句輕柔的問題詢問他們現在的感受或正向回憶，為今天的療程畫上句點。"
 )
 
 # Track A：問題品質的 7 種違規方式
@@ -230,6 +242,17 @@ TRACK_C_REJECTION_RULES: dict[str, str] = {
     "premature_next": "長者話還沒說完、情緒還留在剛才的記憶裡，就急著問下一個問題，讓長者感到被催促和打斷",
     "over_explain": "承接語超過3句且語氣像在分析或演講（如「您說的這段經歷展現了您那個年代的…」），節奏過重，讓長者困惑且忘了後面的問題",
     "cold_transition": "承接後用過於正式或套路化的語氣切入問題（如「好，那麼我再請問您…」），打斷了對話應有的溫度與連貫感",
+}
+
+# Track D：收尾引導的 7 種違規方式
+TRACK_D_REJECTION_RULES: dict[str, str] = {
+    "abrupt_end": "沒有任何收尾語，直接宣告療程結束（如「好，今天到此結束，謝謝。」），讓長者感到突然被中斷，沒有被好好送出",
+    "false_positivity": "收尾語語氣過度誇張正向（如「今天的分享太精彩了！您的人生真是太寶貴！非常感謝！」），讓長者覺得虛假，不真誠",
+    "return_to_past": "收尾語沒有引導長者回到現實，問題繼續把長者帶回過去（如「您年輕的時候還有什麼故事呢？」），沒有完成回到現實的任務",
+    "skip_feeling": "有收尾語，但最後沒有詢問長者當下的感受或正向回憶，直接說再見，沒有給長者表達今天心情的機會",
+    "cold_farewell": "收尾語語氣冷淡、書面化（如「療程至此結束，感謝您今日的配合，請好好休息。」），像公文通知，缺乏真人的溫度",
+    "anchor_negative": "收尾語最後停留在沉重或負面的回憶上（如「今天您分享了許多辛苦的故事，我們要好好記住這些教訓。現在感覺如何？」），沒有把情緒引向溫暖的方向就直接問感受",
+    "over_long_closing": "收尾語超過三句且像演講總結（如長篇大論回顧今天所有主題），讓有認知負荷的長者不知道重點在哪，也忘了後面的問題",
 }
 
 # Track C 情境：長者說完話後，帶有不同情緒色彩的回應
@@ -477,6 +500,111 @@ TRACK_C_SCENARIOS = [
     },
 ]
 
+# Track D 情境：三回合療程結束時，各種主題與情緒狀態下的收尾情境
+TRACK_D_SCENARIOS = [
+    {
+        "elder_name": "陳阿嬤",
+        "today_topic": "工廠縫紉的日子",
+        "last_elder_response": "那個時候大家感情好，師傅對我們很嚴，但心地好，現在想起來還是很感謝他……",
+    },
+    {
+        "elder_name": "王阿公",
+        "today_topic": "農耕收割的歲月",
+        "last_elder_response": "收割的時候全村都來幫忙，那種感覺現在找不到了，但想起來還是很溫暖……",
+    },
+    {
+        "elder_name": "林阿嬤",
+        "today_topic": "採茶的早晨",
+        "last_elder_response": "那個茶香啊，一輩子忘不了，每次聞到青草香，就想到那時候的山上……",
+    },
+    {
+        "elder_name": "黃阿公",
+        "today_topic": "在漁港的歲月",
+        "last_elder_response": "出海很辛苦，但跟那些兄弟一起，什麼辛苦都值得，現在他們很多都不在了……（語氣轉為感傷）",
+    },
+    {
+        "elder_name": "蔡阿嬤",
+        "today_topic": "做糕餅學手藝",
+        "last_elder_response": "我那個師傅說我是他最用心的徒弟，那句話我記了幾十年，一直很感動……",
+    },
+    {
+        "elder_name": "鄭阿公",
+        "today_topic": "火車站工作的日子",
+        "last_elder_response": "那個時候年輕，不怕苦，現在想起來那段日子反而是最充實的……",
+    },
+    {
+        "elder_name": "吳阿嬤",
+        "today_topic": "小時候的家庭生活",
+        "last_elder_response": "媽媽那時候很辛苦，我現在有時候還夢到她……（停頓，語氣帶著深深思念）",
+    },
+    {
+        "elder_name": "李阿公",
+        "today_topic": "軍旅生活的回憶",
+        "last_elder_response": "那個時候的長官其實很照顧我們，我還保留著一張老照片，現在還放在床頭……",
+    },
+    {
+        "elder_name": "張阿嬤",
+        "today_topic": "節慶過年的記憶",
+        "last_elder_response": "過年的時候媽媽做的年糕，那個味道，現在買的都不一樣……哈，現在的年輕人哪知道！",
+    },
+    {
+        "elder_name": "許阿公",
+        "today_topic": "童年玩耍的時光",
+        "last_elder_response": "那個時候我跑最快！沒有人追得上我！哈哈哈！現在腿不好了，說起來真的有點可惜……",
+    },
+    {
+        "elder_name": "洪阿嬤",
+        "today_topic": "在鹽田工作的日子",
+        "last_elder_response": "曬鹽很熱，皮膚都曬黑了，但大家一起做，賺到錢的時候真的很開心，有成就感……",
+    },
+    {
+        "elder_name": "陳阿公",
+        "today_topic": "做生意擺攤的記憶",
+        "last_elder_response": "那個時候天沒亮就去市場，辛苦是辛苦，但看到客人滿意地走，心裡真的很好……",
+    },
+    # ── 情緒較複雜的收尾情境 ──────────────────────────────────────
+    {
+        "elder_name": "劉阿嬤",
+        "today_topic": "與老伴的婚姻生活",
+        "last_elder_response": "他走了十幾年了……（沉默很久）……我有時候還是會跟他說話，說今天吃了什麼……你說奇不奇怪……",
+    },
+    {
+        "elder_name": "吳阿公",
+        "today_topic": "拉二胡的興趣",
+        "last_elder_response": "那個時候我二胡拉得好，鄰居都愛聽，現在手不靈活了……不過想起來還是很開心的……",
+    },
+    {
+        "elder_name": "徐阿嬤",
+        "today_topic": "一個人拉拔孩子長大",
+        "last_elder_response": "（聲音有點哽咽）那個孩子……從小我一個人帶大的……他現在也忙，我不怪他，就是……想他……",
+    },
+    {
+        "elder_name": "賴阿公",
+        "today_topic": "年輕時的奮鬥與遺憾",
+        "last_elder_response": "那個時候想讀書讀不了，家裡窮，弟弟妹妹要養……有時候想，要是當時能讀書……（嘆了口氣，沉默）",
+    },
+    {
+        "elder_name": "方阿嬤",
+        "today_topic": "在市場賣菜的歲月",
+        "last_elder_response": "（說完突然愣了一下，困惑地看看四周）……我剛才說到哪裡了？……我有點忘了……這裡是……",
+    },
+    {
+        "elder_name": "謝阿公",
+        "today_topic": "帶領工人的歲月",
+        "last_elder_response": "（剛才情緒有點激動說了許多辛苦的事，現在稍微平靜下來）……說太多了，不好意思，讓你們聽這些……",
+    },
+    {
+        "elder_name": "周阿嬤",
+        "today_topic": "種花養草的興趣",
+        "last_elder_response": "（話一直很少，最後簡單說）還可以……那時候種花，我比較喜歡靜靜的，一個人……還好啦……",
+    },
+    {
+        "elder_name": "江阿公",
+        "today_topic": "修理電器的手藝",
+        "last_elder_response": "哈，我那時候什麼都會修，鄰居的電視收音機都來找我……現在眼睛不好了，老了嘛……（苦笑）",
+    },
+]
+
 # ─── 提示詞模板 ──────────────────────────────────────────────────────────────
 
 # 懷舊療法 16 大主題（根據文獻「懷舊治療主題之彙整」）
@@ -572,12 +700,13 @@ def build_step2_user_prompt(scenario: dict) -> str:
 2. 問題要接著長者說的話自然延伸，不要跳太遠
 3. 整個問題不超過15個字
 4. 用「您」稱呼，語氣溫和自然
-5. 優先挖掘 Who（當時有誰）或 What（具體在做什麼）
-6. 不用「你還記得嗎」開頭
+5. 問題的第一個詞必須是畫面中看得到的具體物件（視覺錨點）
+6. 優先挖掘 Who（當時有誰）或 What（具體在做什麼）
+7. 不用「你還記得嗎」開頭
 
 【輸出格式】（嚴格按照以下格式）
 場景文字：（15-30字，承接上一句自然過渡）
-問題：（≤15字的開放式追問）
+問題：（≤15字，開放式，開頭要有畫面中的具體物件）
 問題類型：STEP2追問
 本回合已涵蓋的W：（本次問的W維度）"""
 
@@ -608,11 +737,12 @@ Where（哪裡）、Who（誰）
 2. 要問還沒涵蓋的W維度（優先 What 或 When，避免 Why）
 3. 整個問題不超過15個字
 4. 用「您」稱呼，語氣溫和自然
-5. 不用「你還記得嗎」開頭
+5. 問題的第一個詞必須是畫面中看得到的具體物件（視覺錨點）
+6. 不用「你還記得嗎」開頭
 
 【輸出格式】（嚴格按照以下格式）
 場景文字：（15-30字，幫長者重新聚焦到新的W）
-問題：（≤15字的開放式補問）
+問題：（≤15字，開放式，開頭要有畫面中的具體物件）
 問題類型：STEP3補問
 本回合已涵蓋的W：（本次問的W維度）"""
 
@@ -778,15 +908,84 @@ def build_emotional_rejection_prompt(chosen_response: str, rule_name: str, rule_
 後續引導：..."""
 
 
+def build_track_d_chosen_prompt(sc: dict) -> str:
+    return f"""懷舊療法三回合療程剛結束，請設計治療師的「理想收尾引導」。
+
+【長者資料】
+姓名：{sc['elder_name']}
+今日主題：{sc['today_topic']}
+
+【長者最後說的話】
+{sc['last_elder_response']}
+
+請設計收尾引導，需要：
+1. 收尾語：1-2句，溫暖肯定長者今天的分享，把長者從回憶中輕柔地帶回現實
+   - 語氣輕鬆自然，不誇張
+   - 要有「回到今天／現在」的意涵，讓長者從過去的時空回到當下
+   - 承接長者最後說的話，語氣連貫，不跳躍
+2. 問題：一句輕柔的開放式問題（≤15字），詢問以下其中一項：
+   - 現在的感受或心情（例：「現在心裡感覺怎麼樣呢？」）
+   - 今天最開心的回憶（例：「今天哪個故事讓您最開心？」）
+   - 想帶走的正向感受（例：「今天有什麼讓您覺得溫暖的？」）
+
+【輸出格式】
+收尾語：（1-2句，30字以內）
+問題：（≤15字）"""
+
+
+def build_track_d_rejection_prompt(chosen_response: str, rule_name: str, rule_desc: str) -> str:
+    return f"""以下是懷舊療法收尾引導的理想回應（chosen）：
+
+{chosen_response}
+
+請生成一個**刻意違反特定規則**的錯誤收尾回應（rejected），作為 DPO 訓練的負面範例。
+
+【要違反的規則】
+{rule_name}：{rule_desc}
+
+要求：
+- 回應必須明顯違反上述規則
+- 不要解釋你在做什麼，直接輸出 rejected 回應
+
+【輸出格式】（與 chosen 相同）
+收尾語：...
+問題：..."""
+
+
+def build_track_d_inference_prompt(sc: dict) -> list[dict]:
+    """推理時的 prompt，需與 orchestrator._generate_closing 完全一致。"""
+    system_content = SYSTEM_CONTENT_TRACK_D
+    user_content = (
+        f"【長者資料】\n"
+        f"姓名：{sc['elder_name']}\n"
+        f"今日主題：{sc['today_topic']}\n"
+        f"\n【長者最後說的話】\n{sc['last_elder_response']}\n"
+        f"\n【任務】\n"
+        f"三回合療程剛剛結束。請設計收尾引導，需包含：\n"
+        f"1. 收尾語：1-2句，溫暖肯定長者今天的分享，語氣輕鬆自然，不誇張\n"
+        f"2. 問題：一句輕柔的開放式問題（≤15字），詢問以下其中一項：\n"
+        f"   - 現在的感受或心情（例：「現在心裡感覺怎麼樣呢？」）\n"
+        f"   - 今天最讓長者開心的回憶（例：「今天哪個故事讓您最開心？」）\n"
+        f"   - 想帶走的正向感受（例：「今天有什麼讓您覺得溫暖的事？」）\n"
+        f"\n【輸出格式】\n"
+        f"收尾語：（1-2句，30字以內）\n"
+        f"問題：（≤15字）"
+    )
+    return [
+        {"role": "system", "content": system_content},
+        {"role": "user", "content": user_content},
+    ]
+
+
 # ─── API 呼叫 ────────────────────────────────────────────────────────────────
 
 client = anthropic.Anthropic()
 
 
-def call_claude(user_prompt: str, system: str = SYSTEM_PROMPT_THERAPIST) -> str:
+def call_claude(user_prompt: str, system: str = SYSTEM_PROMPT_THERAPIST, model: str = MODEL_CHOSEN) -> str:
     """呼叫 Claude 並回傳文字內容，使用 streaming 避免 timeout。"""
     with client.messages.stream(
-        model=MODEL,
+        model=model,
         max_tokens=2048,
         system=system,
         messages=[{"role": "user", "content": user_prompt}],
@@ -923,11 +1122,22 @@ def generate_track_a(scenarios: list[dict]) -> list[dict]:
                 print(f"    [{rule_name}] 生成 rejected...")
                 rejection_prompt = build_rejection_prompt(chosen, rule_name, rule_desc)
 
-                try:
-                    rejected = call_claude(rejection_prompt)
-                    time.sleep(REQUEST_DELAY)
-                except Exception as e:
-                    print(f"      ✗ rejected 失敗：{e}")
+                rejected = None
+                for attempt in range(3):
+                    try:
+                        candidate = call_claude(rejection_prompt, model=MODEL_REJECTED)
+                        time.sleep(REQUEST_DELAY)
+                    except Exception as e:
+                        print(f"      ✗ rejected 失敗（attempt {attempt+1}）：{e}")
+                        continue
+                    if candidate == chosen:
+                        print(f"      ⚠ rejected==chosen，重試（attempt {attempt+1}）...")
+                        continue
+                    rejected = candidate
+                    break
+
+                if rejected is None:
+                    print(f"      ✗ [{rule_name}] 三次均 chosen==rejected，跳過此 pair")
                     continue
 
                 pairs.append({
@@ -970,7 +1180,7 @@ def generate_track_b() -> list[dict]:
             rejection_prompt = build_emotional_rejection_prompt(chosen, rule_name, rule_desc)
 
             try:
-                rejected = call_claude(rejection_prompt)
+                rejected = call_claude(rejection_prompt, model=MODEL_REJECTED)
                 time.sleep(REQUEST_DELAY)
             except Exception as e:
                 print(f"      ✗ rejected 失敗：{e}")
@@ -1023,7 +1233,7 @@ def generate_track_c() -> list[dict]:
             rejection_prompt = build_track_c_rejection_prompt(chosen, rule_name, rule_desc)
 
             try:
-                rejected = call_claude(rejection_prompt)
+                rejected = call_claude(rejection_prompt, model=MODEL_REJECTED)
                 time.sleep(REQUEST_DELAY)
             except Exception as e:
                 print(f"      ✗ rejected 失敗：{e}")
@@ -1039,6 +1249,61 @@ def generate_track_c() -> list[dict]:
                     "rejection_rule": rule_name,
                     "track": "C",
                     "emotion_tone": sc["emotion_tone"],
+                },
+            })
+
+    return pairs
+
+
+def generate_track_d() -> list[dict]:
+    """Track D：收尾引導 DPO 對（三回合結束後帶長者回到現實）。"""
+    pairs = []
+
+    for sc in TRACK_D_SCENARIOS:
+        print(f"  [Track D / {sc['elder_name']} / {sc['today_topic']}] 生成 chosen...")
+        chosen_prompt = build_track_d_chosen_prompt(sc)
+
+        try:
+            chosen = call_claude(chosen_prompt)
+            time.sleep(REQUEST_DELAY)
+        except Exception as e:
+            print(f"    ✗ chosen 失敗：{e}")
+            continue
+
+        inference_prompt = build_track_d_inference_prompt(sc)
+
+        for rule_name, rule_desc in TRACK_D_REJECTION_RULES.items():
+            print(f"    [{rule_name}] 生成 rejected...")
+            rejection_prompt = build_track_d_rejection_prompt(chosen, rule_name, rule_desc)
+
+            rejected = None
+            for attempt in range(3):
+                try:
+                    candidate = call_claude(rejection_prompt, model=MODEL_REJECTED)
+                    time.sleep(REQUEST_DELAY)
+                except Exception as e:
+                    print(f"      ✗ rejected 失敗（attempt {attempt+1}）：{e}")
+                    continue
+                if candidate == chosen:
+                    print(f"      ⚠ rejected==chosen，重試（attempt {attempt+1}）...")
+                    continue
+                rejected = candidate
+                break
+
+            if rejected is None:
+                print(f"      ✗ [{rule_name}] 三次均 chosen==rejected，跳過此 pair")
+                continue
+
+            pairs.append({
+                "prompt": inference_prompt,
+                "chosen": [{"role": "assistant", "content": chosen}],
+                "rejected": [{"role": "assistant", "content": rejected}],
+                "meta": {
+                    "scenario_id": f"track_d_{sc['elder_name']}",
+                    "step": "TRACK_D",
+                    "rejection_rule": rule_name,
+                    "track": "D",
+                    "today_topic": sc["today_topic"],
                 },
             })
 
@@ -1068,6 +1333,11 @@ def main() -> None:
     all_pairs.extend(track_c_pairs)
     print(f"Track C 完成：{len(track_c_pairs)} 筆")
 
+    print("\n=== Track D：收尾引導（帶長者回到現實） ===")
+    track_d_pairs = generate_track_d()
+    all_pairs.extend(track_d_pairs)
+    print(f"Track D 完成：{len(track_d_pairs)} 筆")
+
     # 輸出 JSONL
     with OUTPUT_FILE.open("w", encoding="utf-8") as f:
         for pair in all_pairs:
@@ -1085,6 +1355,7 @@ def main() -> None:
         "track_a": len(track_a_pairs),
         "track_b": len(track_b_pairs),
         "track_c": len(track_c_pairs),
+        "track_d": len(track_d_pairs),
         "by_step": {},
         "by_rejection_rule": {},
         "topic_coverage_in_scenarios": topic_coverage,
