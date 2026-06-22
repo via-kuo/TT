@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from config import settings
 from services.llm import LLMService
 from services.stt import STTService
@@ -41,6 +43,10 @@ app = FastAPI(title="Rememo Backend", version="0.1.0", lifespan=lifespan)
 
 app.include_router(ws_stt.router)
 app.include_router(session.router)
+
+_media_dir = Path("/media/images")
+_media_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/images", StaticFiles(directory=str(_media_dir)), name="images")
 
 
 # ════════════ 基礎端點 ════════════

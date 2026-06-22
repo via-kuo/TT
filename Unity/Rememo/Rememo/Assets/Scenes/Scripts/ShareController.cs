@@ -13,6 +13,7 @@ public class ShareController : MonoBehaviour
     public Button micButton;
     public Image micButtonImage;
     public TMP_Text inputText;
+    public TMP_Text closingText;    // 線條區：顯示 LLM 收尾語
 
     [Header("Kinect 整合")]
     [Tooltip("拖入場景中的 KinectAudioSender；若留空則退回使用內建麥克風")]
@@ -41,6 +42,9 @@ public class ShareController : MonoBehaviour
     private readonly string placeholderText = "想到什麼就說什麼，按下麥克風可以用說的…";
     private string displayedText = "";
     private Coroutine typingCoroutine;
+    private bool isWaitingForStt = false;
+    private Coroutine sttTimeoutCoroutine;
+    private readonly WaitForSeconds sttTimeoutWait = new WaitForSeconds(5f);
 
     [System.Serializable]
     private class ControlPayload { public string type; }
@@ -55,9 +59,18 @@ public class ShareController : MonoBehaviour
         submitButton.onClick.AddListener(OnSubmit);
         micButton.onClick.AddListener(OnMicToggle);
         ResetInputText();
+        LoadClosingText();
 
         if (!UseKinect)
             ConnectWebSocket();
+    }
+
+    void LoadClosingText()
+    {
+        if (closingText == null) return;
+        string text = PlayerPrefs.GetString("ClosingText", "");
+        string question = PlayerPrefs.GetString("ClosingQuestion", "");
+        closingText.text = string.IsNullOrEmpty(question) ? text : $"{text}\n{question}";
     }
 
     void ConnectWebSocket()
@@ -83,6 +96,8 @@ public class ShareController : MonoBehaviour
 
     void OnSubmit()
     {
+        if (isRecording) StopRecording();
+        if (sttTimeoutCoroutine != null) { StopCoroutine(sttTimeoutCoroutine); sttTimeoutCoroutine = null; }
         PlayerPrefs.SetString("NextScene", "ThankYouScene");
         SceneManager.LoadScene("LoadingScene");
     }
@@ -101,7 +116,8 @@ public class ShareController : MonoBehaviour
         displayedText  = "";
         inputText.text = "錄音中...";
         inputText.color = new Color(1f, 0.4f, 0.4f, 1f);
-        micButtonImage.color = new Color(1f, 0.3f, 0.3f, 1f);
+        if (micButtonImage != null) micButtonImage.color = new Color(1f, 0.3f, 0.3f, 1f);
+        RefreshSubmitButton();
 
         if (UseKinect)
         {
@@ -129,10 +145,13 @@ public class ShareController : MonoBehaviour
     void StopRecording()
     {
         isRecording = false;
-
+        isWaitingForStt = true;
         inputText.text  = "辨識中...";
         inputText.color = new Color(0.2f, 0.2f, 0.2f, 1f);
-        micButtonImage.color = Color.white;
+        if (micButtonImage != null) micButtonImage.color = Color.white;
+        RefreshSubmitButton();
+        if (sttTimeoutCoroutine != null) StopCoroutine(sttTimeoutCoroutine);
+        sttTimeoutCoroutine = StartCoroutine(SttTimeout());
 
         if (UseKinect)
             kinectAudioSender.StopSTT();
@@ -213,6 +232,25 @@ public class ShareController : MonoBehaviour
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeCharByChar(msg.text));
+        if (msg.isFinal) OnSttFinal();
+    }
+
+    IEnumerator SttTimeout()
+    {
+        yield return sttTimeoutWait;
+        OnSttFinal();
+    }
+
+    void OnSttFinal()
+    {
+        if (sttTimeoutCoroutine != null) { StopCoroutine(sttTimeoutCoroutine); sttTimeoutCoroutine = null; }
+        isWaitingForStt = false;
+        RefreshSubmitButton();
+    }
+
+    void RefreshSubmitButton()
+    {
+        submitButton.interactable = !isRecording && !isWaitingForStt;
     }
 
     IEnumerator TypeCharByChar(string target)
