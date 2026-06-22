@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +22,21 @@ class Settings(BaseSettings):
 
     # === Stability AI ===
     stability_api_key: str = ""
+
+    # === Redis ===
+    redis_host: str = "redis"
+    redis_port: int = 6379
+    redis_password: str = ""
+    redis_url: str = ""  # 若為空，由 build_redis_url 自動組裝
+
+    @model_validator(mode="after")
+    def build_redis_url(self) -> "Settings":
+        if not self.redis_url:
+            if self.redis_password:
+                self.redis_url = f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}"
+            else:
+                self.redis_url = f"redis://{self.redis_host}:{self.redis_port}"
+        return self
 
 
 # 建立一個全域實例，整個 app 共用

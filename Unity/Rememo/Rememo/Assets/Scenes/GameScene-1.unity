@@ -380,6 +380,7 @@ MonoBehaviour:
   loadingSpinner: {fileID: 1376622245}
   photoDisplay: {fileID: 1056907271}
   kinectAudioSender: {fileID: 1034624761}
+  kinectEmotionSender: {fileID: 1034624762}
   sttServerUrl: ws://localhost:8000/ws/stt
   sampleRate: 16000
   maxRecordSeconds: 60
@@ -1656,6 +1657,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7885733304640563316, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+      propertyPath: audioSender
+      value: 
+      objectReference: {fileID: 1034624761}
+    - target: {fileID: 7885733304640563316, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+      propertyPath: gameController
+      value: 
+      objectReference: {fileID: 231164216}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1707,6 +1716,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a154f997ac98494fafb32a03d9f8413, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KinectAudioSender
+--- !u!114 &1034624762 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7885733304640563316, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+  m_PrefabInstance: {fileID: 1034624758}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034624759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77ba51b84667f0a4b8ce1a62b011917d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectEmotionSender
 --- !u!1 &1056907267
 GameObject:
   m_ObjectHideFlags: 0
