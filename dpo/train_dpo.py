@@ -2,7 +2,7 @@
 """
 DPO 微調腳本
 
-用 dpo/data/train.jsonl 微調 Meta-Llama-3-8B-Instruct，
+用 dpo/data/train.jsonl 微調 yentinglin/Llama-3-Taiwan-8B-Instruct，
 使模型學會懷舊療法問題設計規則與情緒引導。
 
 微調完成後需要轉換成 GGUF 格式才能在 Ollama 上執行。
@@ -26,7 +26,7 @@ from trl import DPOConfig, DPOTrainer
 
 # ─── 設定 ───────────────────────────────────────────────────────────────────
 
-BASE_MODEL = "meta-llama/Meta-Llama-3-8B-Instruct"
+BASE_MODEL = "yentinglin/Llama-3-Taiwan-8B-Instruct"
 DATA_FILE = Path(__file__).parent / "data" / "train.jsonl"
 OUTPUT_DIR = Path(__file__).parent / "output"
 

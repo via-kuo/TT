@@ -2,7 +2,7 @@
 """
 DPO 訓練資料收集腳本
 
-使用混合模型策略為 llama3:8b-instruct-q4_K_M 生成偏好訓練對：
+使用混合模型策略為 yentinglin/Llama-3-Taiwan-8B-Instruct 生成偏好訓練對：
   chosen  → claude-sonnet-4-6（高品質）
   rejected → claude-haiku-4-5-20251001（只需違規，省 ~60% 費用）
 
