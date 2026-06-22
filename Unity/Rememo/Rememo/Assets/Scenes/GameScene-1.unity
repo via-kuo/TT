@@ -347,9 +347,11 @@ MonoBehaviour:
   aiText: {fileID: 1133395053}
   sceneImage: {fileID: 1056907269}
   inputText: {fileID: 1676628713}
+  kinectAudioSender: {fileID: 1034624761}
   serverUrl: ws://localhost:8000/ws/stt
   sampleRate: 16000
   maxRecordSeconds: 60
+  charInterval: 0.03
   testImages: []
 --- !u!114 &231164216
 MonoBehaviour:
@@ -1015,9 +1017,11 @@ MonoBehaviour:
   aiText: {fileID: 0}
   sceneImage: {fileID: 0}
   inputText: {fileID: 0}
+  kinectAudioSender: {fileID: 0}
   serverUrl: ws://localhost:8000/ws/stt
   sampleRate: 16000
   maxRecordSeconds: 60
+  charInterval: 0.03
   testImages: []
 --- !u!1 &695202853
 GameObject:
@@ -1681,6 +1685,17 @@ MonoBehaviour:
   controlMouseDrag: 0
   interactionListeners: []
   debugText: {fileID: 0}
+--- !u!114 &1034624761 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3165157922539519360, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+  m_PrefabInstance: {fileID: 1034624758}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034624759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a154f997ac98494fafb32a03d9f8413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectAudioSender
 --- !u!1 &1056907267
 GameObject:
   m_ObjectHideFlags: 0

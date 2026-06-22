@@ -1263,6 +1263,11 @@ MonoBehaviour:
   micButton: {fileID: 400405421}
   micButtonImage: {fileID: 400405422}
   inputText: {fileID: 721035782}
+  kinectAudioSender: {fileID: 1806627863}
+  serverUrl: ws://localhost:8000/ws/stt
+  sampleRate: 16000
+  maxRecordSeconds: 60
+  charInterval: 0.03
 --- !u!1 &1332985515
 GameObject:
   m_ObjectHideFlags: 0
@@ -1824,7 +1829,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1806627861}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a669d15f0035bbf4889c8092b5bcd201, type: 3}
   m_Name: 
@@ -1844,6 +1849,17 @@ MonoBehaviour:
   controlMouseDrag: 0
   interactionListeners: []
   debugText: {fileID: 0}
+--- !u!114 &1806627863 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3165157922539519360, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+  m_PrefabInstance: {fileID: 1806627860}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806627861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a154f997ac98494fafb32a03d9f8413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectAudioSender
 --- !u!1 &1845755580
 GameObject:
   m_ObjectHideFlags: 0

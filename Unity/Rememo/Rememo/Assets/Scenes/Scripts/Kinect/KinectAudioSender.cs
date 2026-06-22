@@ -7,22 +7,59 @@ using Windows.Kinect;
 public class KinectAudioSender : MonoBehaviour
 {
     [Header("WebSocket 設定")]
-    public string serverUrl = "ws://localhost:8000/ws/audio";
+    public string audioUrl = "ws://localhost:8000/ws/audio";
+    public string sttUrl   = "ws://localhost:8000/ws/stt";
 
-    private WebSocket ws;
+    // MicController 設定此 callback 以接收 STT 回傳訊息（在 WS 背景執行緒呼叫）
+    public System.Action<string> OnSttMessage;
+
+    private WebSocket wsAudio;
+    private WebSocket wsStt;
+
     private KinectSensor sensor;
     private AudioBeamFrameReader audioReader;
     private MemoryStream audioAccumulator = new MemoryStream();
     private const int CHUNK_SIZE = 3200;
     private bool isInitialized = false;
+    private bool isSttActive = false;
 
     void Start()
     {
-        ws = new WebSocket(serverUrl);
-        ws.OnOpen += (s, e) => Debug.Log("[Audio WS] 已連線");
-        ws.OnError += (s, e) => Debug.LogError($"[Audio WS] 錯誤: {e.Message}");
-        ws.OnClose += (s, e) => Debug.Log("[Audio WS] 已關閉");
-        ws.ConnectAsync();
+        wsAudio = new WebSocket(audioUrl);
+        wsAudio.OnOpen  += (s, e) => Debug.Log("[Audio WS] 已連線");
+        wsAudio.OnError += (s, e) => Debug.LogError($"[Audio WS] 錯誤: {e.Message}");
+        wsAudio.OnClose += (s, e) => Debug.Log("[Audio WS] 已關閉");
+        wsAudio.ConnectAsync();
+
+        wsStt = new WebSocket(sttUrl);
+        wsStt.OnOpen    += (s, e) => Debug.Log("[STT WS Kinect] 已連線");
+        wsStt.OnError   += (s, e) => Debug.LogError($"[STT WS Kinect] 錯誤: {e.Message}");
+        wsStt.OnClose   += (s, e) => Debug.Log("[STT WS Kinect] 已關閉");
+        wsStt.OnMessage += (s, e) => { if (e.IsText) OnSttMessage?.Invoke(e.Data); };
+        wsStt.ConnectAsync();
+    }
+
+    // ── 公開 API，讓 MicController 在按下/放開麥克風時呼叫 ──
+
+    public void StartSTT()
+    {
+        isSttActive = true;
+        audioAccumulator.SetLength(0);
+        SendSttControl("start");
+        Debug.Log("[KinectAudio] StartSTT");
+    }
+
+    public void StopSTT()
+    {
+        isSttActive = false;
+        SendSttControl("end");
+        Debug.Log("[KinectAudio] StopSTT");
+    }
+
+    private void SendSttControl(string type)
+    {
+        if (wsStt?.ReadyState == WebSocketState.Open)
+            wsStt.SendAsync($"{{\"type\":\"{type}\"}}", null);
     }
 
     private void TryInitAudio()
@@ -73,11 +110,18 @@ public class KinectAudioSender : MonoBehaviour
                 subFrame.CopyFrameDataToArray(floatBuffer);
 
                 byte[] int16Buffer = ConvertFloat32ToInt16(floatBuffer);
+
+                // 送到原始音訊端點（logging）
                 audioAccumulator.Write(int16Buffer, 0, int16Buffer.Length);
                 if (audioAccumulator.Length >= CHUNK_SIZE)
                 {
-                    if (ws?.ReadyState == WebSocketState.Open)
-                        ws.SendAsync(audioAccumulator.ToArray(), null);
+                    if (wsAudio?.ReadyState == WebSocketState.Open)
+                        wsAudio.SendAsync(audioAccumulator.ToArray(), null);
+
+                    // 錄音中：同步送 STT 端點
+                    if (isSttActive && wsStt?.ReadyState == WebSocketState.Open)
+                        wsStt.SendAsync(audioAccumulator.ToArray(), null);
+
                     audioAccumulator.SetLength(0);
                 }
             }
@@ -95,7 +139,7 @@ public class KinectAudioSender : MonoBehaviour
             sample = Mathf.Clamp(sample, -1f, 1f);
             short s = (short)(sample * 32767);
             byte[] b = BitConverter.GetBytes(s);
-            result[i * 2] = b[0];
+            result[i * 2]     = b[0];
             result[i * 2 + 1] = b[1];
         }
         return result;
@@ -106,6 +150,7 @@ public class KinectAudioSender : MonoBehaviour
         audioReader?.Dispose();
         audioReader = null;
         audioAccumulator?.Dispose();
-        ws?.Close();
+        wsAudio?.Close();
+        wsStt?.Close();
     }
 }
