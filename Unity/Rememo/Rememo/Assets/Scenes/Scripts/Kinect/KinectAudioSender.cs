@@ -7,13 +7,14 @@ using Windows.Kinect;
 public class KinectAudioSender : MonoBehaviour
 {
     [Header("WebSocket 設定")]
-    public string audioUrl = "ws://localhost:8000/ws/audio";
-    public string sttUrl   = "ws://localhost:8000/ws/stt";
+    public string sttUrl = "ws://localhost:8000/ws/stt";
 
     // MicController 設定此 callback 以接收 STT 回傳訊息（在 WS 背景執行緒呼叫）
     public System.Action<string> OnSttMessage;
 
-    private WebSocket wsAudio;
+    /// <summary>Kinect 麥克風即時音量（EMA 平滑），供情緒判斷使用。0 = 靜音，>0.015 通常為語音。</summary>
+    public float CurrentAudioRms { get; private set; } = 0f;
+
     private WebSocket wsStt;
 
     private KinectSensor sensor;
@@ -25,12 +26,6 @@ public class KinectAudioSender : MonoBehaviour
 
     void Start()
     {
-        wsAudio = new WebSocket(audioUrl);
-        wsAudio.OnOpen  += (s, e) => Debug.Log("[Audio WS] 已連線");
-        wsAudio.OnError += (s, e) => Debug.LogError($"[Audio WS] 錯誤: {e.Message}");
-        wsAudio.OnClose += (s, e) => Debug.Log("[Audio WS] 已關閉");
-        wsAudio.ConnectAsync();
-
         wsStt = new WebSocket(sttUrl);
         wsStt.OnOpen    += (s, e) => Debug.Log("[STT WS Kinect] 已連線");
         wsStt.OnError   += (s, e) => Debug.LogError($"[STT WS Kinect] 錯誤: {e.Message}");
@@ -109,16 +104,12 @@ public class KinectAudioSender : MonoBehaviour
                 byte[] floatBuffer = new byte[frameBytes];
                 subFrame.CopyFrameDataToArray(floatBuffer);
 
+                CurrentAudioRms = Mathf.Lerp(CurrentAudioRms, ComputeRms(floatBuffer), 0.4f);
                 byte[] int16Buffer = ConvertFloat32ToInt16(floatBuffer);
 
-                // 送到原始音訊端點（logging）
                 audioAccumulator.Write(int16Buffer, 0, int16Buffer.Length);
                 if (audioAccumulator.Length >= CHUNK_SIZE)
                 {
-                    if (wsAudio?.ReadyState == WebSocketState.Open)
-                        wsAudio.SendAsync(audioAccumulator.ToArray(), null);
-
-                    // 錄音中：同步送 STT 端點
                     if (isSttActive && wsStt?.ReadyState == WebSocketState.Open)
                         wsStt.SendAsync(audioAccumulator.ToArray(), null);
 
@@ -127,6 +118,19 @@ public class KinectAudioSender : MonoBehaviour
             }
             frame.Dispose();
         }
+    }
+
+    private float ComputeRms(byte[] float32Bytes)
+    {
+        int count = float32Bytes.Length / 4;
+        if (count == 0) return 0f;
+        float sumSq = 0f;
+        for (int i = 0; i < count; i++)
+        {
+            float s = BitConverter.ToSingle(float32Bytes, i * 4);
+            sumSq += s * s;
+        }
+        return Mathf.Sqrt(sumSq / count);
     }
 
     private byte[] ConvertFloat32ToInt16(byte[] float32Bytes)
@@ -150,7 +154,6 @@ public class KinectAudioSender : MonoBehaviour
         audioReader?.Dispose();
         audioReader = null;
         audioAccumulator?.Dispose();
-        wsAudio?.Close();
         wsStt?.Close();
     }
 }

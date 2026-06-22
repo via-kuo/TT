@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import redis.asyncio as aioredis
 from config import settings
 from services.llm import LLMService
 from services.stt import STTService
@@ -10,12 +12,13 @@ from services.image import StabilityImageService
 from services.rag_client import MockRAGClient
 from privacy.deidentifier import Deidentifier
 from orchestrator import TherapyOrchestrator
-from routers import ws_stt, session
+from routers import ws_stt, session, sensor
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 啟動服務...")
+    app.state.redis              = aioredis.from_url(settings.redis_url, decode_responses=True)
     app.state.llm_service        = LLMService()
     app.state.stt_service        = STTService()
     app.state.user_profile       = MockUserProfileClient()
@@ -33,6 +36,7 @@ async def lifespan(app: FastAPI):
     yield
 
     print("👋 關閉服務...")
+    await app.state.redis.aclose()
     await app.state.llm_service.close()
     await app.state.stt_service.close()
     await app.state.user_profile.close()
@@ -41,8 +45,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Rememo Backend", version="0.1.0", lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(ws_stt.router)
 app.include_router(session.router)
+app.include_router(sensor.router)
 
 _media_dir = Path("/media/images")
 _media_dir.mkdir(parents=True, exist_ok=True)

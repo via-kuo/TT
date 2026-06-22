@@ -34,6 +34,8 @@ public class GameController : MonoBehaviour
     [Header("Kinect 整合")]
     [Tooltip("拖入場景中的 KinectAudioSender；若留空則退回使用內建麥克風")]
     public KinectAudioSender kinectAudioSender;
+    [Tooltip("拖入場景中的 KinectEmotionSender；若留空則不追蹤反應時間")]
+    public KinectEmotionSender kinectEmotionSender;
 
     [Header("WebSocket STT 設定（內建麥克風模式用）")]
     public string sttServerUrl = "ws://localhost:8000/ws/stt";
@@ -238,7 +240,24 @@ public class GameController : MonoBehaviour
         if (msg == null || msg.type != "transcript") return;
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeCharByChar(msg.text));
-        if (msg.isFinal) OnSttFinal();
+        if (msg.isFinal)
+        {
+            OnSttFinal();
+            if (!string.IsNullOrWhiteSpace(msg.text))
+                StartCoroutine(PostTranscript(msg.text));
+        }
+    }
+
+    IEnumerator PostTranscript(string text)
+    {
+        byte[] body = Encoding.UTF8.GetBytes($"{{\"text\":{JsonUtility.ToJson(text)}}}");
+        using var req = new UnityWebRequest($"{backendUrl}/session/{sessionId}/response", "POST");
+        req.uploadHandler   = new UploadHandlerRaw(body);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+        yield return req.SendWebRequest();
+        if (req.result != UnityWebRequest.Result.Success)
+            Debug.LogWarning($"[Transcript] POST 失敗: {req.error}");
     }
 
     IEnumerator TypeCharByChar(string target)
@@ -296,6 +315,7 @@ public class GameController : MonoBehaviour
         loadingSpinner.SetActive(false);
         aiText.text = resp.question;
         aiText.gameObject.SetActive(true);
+        kinectEmotionSender?.OnQuestionAsked();
 
         StartCoroutine(LoadPhoto(BuildImageUrl(resp.image_path)));
     }
@@ -376,6 +396,7 @@ public class GameController : MonoBehaviour
         {
             PlayerPrefs.SetString("ClosingText", resp.scene_text ?? "");
             PlayerPrefs.SetString("ClosingQuestion", resp.question ?? "");
+            PlayerPrefs.SetString("session_id", sessionId);
             PlayerPrefs.SetString("NextScene", "ShareScene");
             currentRound = 1;
             SceneManager.LoadScene("LoadingScene");
@@ -394,6 +415,7 @@ public class GameController : MonoBehaviour
         currentState = resp.state;
         aiText.text = resp.question;
         aiText.gameObject.SetActive(true);
+        kinectEmotionSender?.OnQuestionAsked();
     }
 
     void UpdateRoundBadge()
