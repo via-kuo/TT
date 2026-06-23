@@ -11,6 +11,7 @@ public class ShareController : MonoBehaviour
     [Header("UI 元件")]
     public Button submitButton;
     public Button micButton;
+    public Button replayButton;
     public Image micButtonImage;
     public TMP_Text inputText;
     public TMP_Text closingText;    // 線條區：顯示 LLM 收尾語
@@ -41,7 +42,9 @@ public class ShareController : MonoBehaviour
 
     private readonly string placeholderText = "想到什麼就說什麼，按下麥克風可以用說的…";
     private string displayedText = "";
+    private string closingFullText = "";
     private Coroutine typingCoroutine;
+    private Coroutine replayCoroutine;
     private bool isWaitingForStt = false;
     private Coroutine sttTimeoutCoroutine;
     private readonly WaitForSeconds sttTimeoutWait = new WaitForSeconds(5f);
@@ -58,6 +61,7 @@ public class ShareController : MonoBehaviour
     {
         submitButton.onClick.AddListener(OnSubmit);
         micButton.onClick.AddListener(OnMicToggle);
+        replayButton.onClick.AddListener(OnReplay);
         ResetInputText();
         LoadClosingText();
 
@@ -70,7 +74,25 @@ public class ShareController : MonoBehaviour
         if (closingText == null) return;
         string text = PlayerPrefs.GetString("ClosingText", "");
         string question = PlayerPrefs.GetString("ClosingQuestion", "");
-        closingText.text = string.IsNullOrEmpty(question) ? text : $"{text}\n{question}";
+        closingFullText = string.IsNullOrEmpty(question) ? text : $"{text}\n{question}";
+        closingText.text = closingFullText;
+    }
+
+    void OnReplay()
+    {
+        if (string.IsNullOrEmpty(closingFullText)) return;
+        if (replayCoroutine != null) StopCoroutine(replayCoroutine);
+        closingText.text = "";
+        replayCoroutine = StartCoroutine(TypeClosingText(closingFullText));
+    }
+
+    IEnumerator TypeClosingText(string target)
+    {
+        for (int i = 0; i <= target.Length; i++)
+        {
+            closingText.text = target.Substring(0, i);
+            yield return new WaitForSeconds(charInterval);
+        }
     }
 
     void ConnectWebSocket()

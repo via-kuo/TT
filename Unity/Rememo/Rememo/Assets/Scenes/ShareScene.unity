@@ -1288,9 +1288,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf7a34680be9b4c4698c2e9c507be90d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShareController
-  submitButton: {fileID: 0}
-  micButton: {fileID: 0}
-  micButtonImage: {fileID: 0}
+  submitButton: {fileID: 1247103046}
+  micButton: {fileID: 1890841034}
+  replayButton: {fileID: 460510612}
+  micButtonImage: {fileID: 1890841035}
   inputText: {fileID: 721035782}
   closingText: {fileID: 0}
   kinectAudioSender: {fileID: 1806627863}

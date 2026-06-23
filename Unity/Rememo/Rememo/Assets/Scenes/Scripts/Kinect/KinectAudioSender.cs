@@ -64,8 +64,10 @@ public class KinectAudioSender : MonoBehaviour
         KinectManager km = KinectManager.Instance;
         if (km == null || !km.IsInitialized()) return;
 
+#if UNITY_STANDALONE_WIN
         Kinect2Interface sensorInterface = km.GetSensorData().sensorInterface as Kinect2Interface;
         sensor = sensorInterface?.kinectSensor;
+#endif
         if (sensor == null) { isInitialized = true; return; }
 
         audioReader = sensor.AudioSource.OpenReader();
