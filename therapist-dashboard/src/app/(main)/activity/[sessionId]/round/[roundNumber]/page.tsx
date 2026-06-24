@@ -78,9 +78,9 @@ export default function RoundDetailPage({
             <Image
               src={currentRound.sceneImage}
               alt={currentRound.sceneName}
-              width={600}
-              height={500}
-              className="w-full h-full object-cover"
+              width={700}
+              height={700}
+              className="max-w-full h-auto"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#888] text-[16px]">
