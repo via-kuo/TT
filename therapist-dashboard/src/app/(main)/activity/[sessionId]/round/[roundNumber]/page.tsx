@@ -73,13 +73,13 @@ export default function RoundDetailPage({
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* 左欄：場景圖片 */}
-        <div className="flex-none w-[630px] h-[630px] bg-white rounded-2xl overflow-hidden">
+        <div className="flex-none w-[567px] h-[567px] bg-white rounded-2xl overflow-hidden">
           {currentRound.sceneImage ? (
             <Image
               src={currentRound.sceneImage}
               alt={currentRound.sceneName}
-              width={630}
-              height={630}
+              width={567}
+              height={567}
               className="max-w-full h-auto"
             />
           ) : (
