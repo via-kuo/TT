@@ -78,8 +78,8 @@ export default function RoundDetailPage({
             <Image
               src={currentRound.sceneImage}
               alt={currentRound.sceneName}
-              width={620}
-              height={620}
+              width={625}
+              height={625}
               className="max-w-full h-auto"
             />
           ) : (
