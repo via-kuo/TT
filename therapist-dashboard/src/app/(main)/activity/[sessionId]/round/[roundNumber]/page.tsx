@@ -91,18 +91,18 @@ export default function RoundDetailPage({
 
         {/* 右欄：問答紀錄 */}
         <div className="flex-1 bg-white rounded-2xl px-6 py-5 flex flex-col gap-4 overflow-y-auto">
-          <h2 className="text-[20px] font-bold text-[#1a1a1a]">問答紀錄</h2>
+          <h2 className="text-[21px] font-bold text-[#1a1a1a]">問答紀錄</h2>
 
           {(currentRound.exchanges ?? []).map((ex) => (
             <div key={ex.questionNumber} className="flex flex-col gap-1.5">
-              <p className="text-[13px] text-[#888]">第 {ex.questionNumber} 次提問</p>
-              <p className="text-[15px] text-[#1a1a1a]">{ex.question}</p>
+              <p className="text-[14px] text-[#888]">第 {ex.questionNumber} 次提問</p>
+              <p className="text-[16px] text-[#1a1a1a]">{ex.question}</p>
               {ex.answer != null ? (
-                <div className="bg-[#f5e6d3] rounded-xl px-4 py-2.5 text-[15px] text-[#1a1a1a]">
+                <div className="bg-[#f5e6d3] rounded-xl px-4 py-2.5 text-[16px] text-[#1a1a1a]">
                   {ex.answer}
                 </div>
               ) : (
-                <p className="text-[14px] text-[#c08252]">未偵測到回答・已跳過</p>
+                <p className="text-[15px] text-[#c08252]">未偵測到回答・已跳過</p>
               )}
             </div>
           ))}
