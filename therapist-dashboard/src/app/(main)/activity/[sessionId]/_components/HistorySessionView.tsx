@@ -136,18 +136,16 @@ export function HistorySessionView({
              </div>
 
 
-             {/* 右側：情緒指示燈 + 查看按鈕（僅第一筆） */}
+             {/* 右側：情緒指示燈 + 查看按鈕 */}
              <div className="flex items-center gap-5">
-
 
                {/* 彩色圓點 + 情緒文字 */}
                <span className="text-[14px] font-medium flex items-center gap-1.5" style={{ color: dotColor }}>
-                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: dotColor }} /> {/* 情緒顏色圓點 */}
-                 {round.emotion} {/* 情緒文字（適當、亢奮、焦躁、低落） */}
+                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: dotColor }} />
+                 {round.emotion}
                </span>
 
-
-               {/* 只有第一筆（心得欄）顯示查看按鈕，點擊開啟心得彈窗 */}
+               {/* 心得欄：開啟心得彈窗 */}
                {idx === 0 && (
                  <button
                    onClick={() => setShowModal(true)}
@@ -155,6 +153,16 @@ export function HistorySessionView({
                  >
                    查看 ›
                  </button>
+               )}
+
+               {/* 回合列：連結至回合問答紀錄頁 */}
+               {round.type === "回合" && (
+                 <Link
+                   href={`/activity/${session.id}/round/${round.roundNumber}`}
+                   className="text-[14px] font-medium text-[#5b8ac5] hover:text-[#3a6aa0] transition-colors"
+                 >
+                   查看 ›
+                 </Link>
                )}
              </div>
            </div>
