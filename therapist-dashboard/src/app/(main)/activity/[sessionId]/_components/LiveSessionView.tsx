@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState, Fragment, useEffect, useRef } from "react";
+import { useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
@@ -29,20 +29,8 @@ export function LiveSessionView() {
 
  const router = useRouter();
  const [showConfirm, setShowConfirm] = useState(false);
- const containerRef = useRef<HTMLDivElement>(null);
 
 
- useEffect(() => {
-   const isDesktop = window.matchMedia("(pointer: fine)").matches;
-   if (isDesktop) {
-     document.body.classList.add("overflow-hidden");
-     containerRef.current?.classList.add("h-screen", "overflow-hidden");
-     return () => {
-       document.body.classList.remove("overflow-hidden");
-       containerRef.current?.classList.remove("h-screen", "overflow-hidden");
-     };
-   }
- }, []);
 
 
  const handlePause = () => setSession((s) => ({ ...s, status: "paused" }));
@@ -50,7 +38,7 @@ export function LiveSessionView() {
 
 
  return (
-   <div ref={containerRef} className="min-h-screen bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[3vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-2 lg:gap-4 xl:gap-5">
+   <div className="min-h-screen bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[3vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-2 lg:gap-4 xl:gap-5">
 
 
      {/* 標題 + 回合追蹤 */}
