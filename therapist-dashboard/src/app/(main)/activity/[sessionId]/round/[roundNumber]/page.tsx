@@ -90,7 +90,7 @@ export default function RoundDetailPage({
         </div>
 
         {/* 右欄：問答紀錄 */}
-        <div className="flex-1 bg-white rounded-2xl px-6 py-5 flex flex-col gap-4 overflow-y-auto">
+        <div className="flex-1 bg-white rounded-2xl px-6 py-4 flex flex-col gap-4 overflow-y-auto">
           <h2 className="text-[21px] font-bold text-[#1a1a1a]">問答紀錄</h2>
 
           {(currentRound.exchanges ?? []).map((ex) => (
