@@ -121,6 +121,8 @@ services:
     container_name: tku-care-redisinsight-1
     ports:
       - "5540:5540"
+    environment:
+      - RI_REDIS_URI=redis://:${REDIS_PASSWORD}@redis:6379
     depends_on:
       - redis
     restart: always

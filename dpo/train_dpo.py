@@ -8,7 +8,7 @@ DPO 微調腳本
 微調完成後需要轉換成 GGUF 格式才能在 Ollama 上執行。
 
 執行需求：
-  - GPU（建議 VRAM >= 16GB）
+  - GPU（VRAM >= 8GB，已針對 8GB 優化：precompute_ref_log_probs + gradient_checkpointing）
   - pip install trl transformers datasets torch bitsandbytes peft
 
 執行：
@@ -91,8 +91,8 @@ def load_model_and_tokenizer():
 
 def get_lora_config() -> LoraConfig:
     return LoraConfig(
-        r=16,
-        lora_alpha=32,
+        r=8,
+        lora_alpha=16,
         target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
         lora_dropout=0.05,
         bias="none",
@@ -135,14 +135,17 @@ def main() -> None:
         lr_scheduler_type="cosine",
         warmup_ratio=0.1,
         bf16=True,
+        gradient_checkpointing=True,
         logging_steps=10,
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
         report_to="none",
-        # 限制序列長度，減少 VRAM 用量
-        max_length=1024,
-        max_prompt_length=768,
+        # 8GB VRAM 優化：預算完參考模型後移出 VRAM，訓練時只需一個模型
+        precompute_ref_log_probs=True,
+        # 資料實際長度 ~350-450 tokens，512 足夠
+        max_length=512,
+        max_prompt_length=384,
     )
 
     trainer = DPOTrainer(
