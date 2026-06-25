@@ -41,12 +41,12 @@ public class KinectCalibrationManager : MonoBehaviour
 
     private WebSocket ws;
     private KinectManager kinectManager;
-    private KinectEmotionSender emotionSender;
+    private KinectSensorSender sensorSender;
 
     void Start()
     {
         kinectManager = KinectManager.Instance;
-        emotionSender = GetComponent<KinectEmotionSender>();
+        sensorSender = GetComponent<KinectSensorSender>();
 
         SetStatus(false);
 
@@ -157,11 +157,11 @@ public class KinectCalibrationManager : MonoBehaviour
 
     void CollectEmotionData()
     {
-        if (emotionSender == null) return;
+        if (sensorSender == null) return;
 
-        happyBuffer.Add(emotionSender.LastHappy);
-        lookingAwayBuffer.Add(emotionSender.LastLookingAway);
-        mouthMovedBuffer.Add(emotionSender.LastMouthMoved);
+        happyBuffer.Add(sensorSender.LastHappy);
+        lookingAwayBuffer.Add(sensorSender.LastLookingAway);
+        mouthMovedBuffer.Add(sensorSender.LastMouthMoved);
     }
 
     bool CheckStability()

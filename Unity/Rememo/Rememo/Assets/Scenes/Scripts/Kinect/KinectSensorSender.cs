@@ -11,7 +11,7 @@ using Microsoft.Kinect.Face;
 /// 感測資料蒐集器：讀取臉部特徵、骨架量測值、麥克風音量，
 /// 組成原始 payload 送給後端。情緒分類邏輯完全在後端執行。
 /// </summary>
-public class KinectEmotionSender : MonoBehaviour
+public class KinectSensorSender : MonoBehaviour
 {
     // 供其他腳本讀取原始臉部數值
     public float LastHappy       { get; private set; }
@@ -54,6 +54,12 @@ public class KinectEmotionSender : MonoBehaviour
     private bool  responseTimeSent  = false;
 
     private const int BODY_COUNT = 6;
+
+    // HandTip 速度（B 階段）
+    private float   _latestHandTipVelocity = 0f;
+    private Vector3 _prevHandTipL          = Vector3.zero;
+    private Vector3 _prevHandTipR          = Vector3.zero;
+    private bool    _prevHandTipValid      = false;
 
     // ════════════════════════════════════════════════════════════════
 
@@ -113,6 +119,23 @@ public class KinectEmotionSender : MonoBehaviour
         Vector3 pos = kinectManager.GetJointPosition(userId, (int)KinectInterop.JointType.SpineBase);
         swayHistory.Enqueue(pos);
         if (swayHistory.Count > SWAY_HISTORY) swayHistory.Dequeue();
+        SampleHandTipVelocity(userId);
+    }
+
+    void SampleHandTipVelocity(long userId)
+    {
+        var posL = GetJoint(userId, KinectInterop.JointType.HandTipLeft);
+        var posR = GetJoint(userId, KinectInterop.JointType.HandTipRight);
+        if (!posL.HasValue || !posR.HasValue) { _prevHandTipValid = false; return; }
+        if (_prevHandTipValid)
+        {
+            float vL = Vector3.Distance(posL.Value, _prevHandTipL) / SWAY_SAMPLE_INTERVAL;
+            float vR = Vector3.Distance(posR.Value, _prevHandTipR) / SWAY_SAMPLE_INTERVAL;
+            _latestHandTipVelocity = Mathf.Max(vL, vR);
+        }
+        _prevHandTipL     = posL.Value;
+        _prevHandTipR     = posR.Value;
+        _prevHandTipValid = true;
     }
 
     // ════════════ 主蒐集流程 ═════════════════════════════════════════
@@ -163,6 +186,7 @@ public class KinectEmotionSender : MonoBehaviour
             float headDrop      = userId != 0 ? MeasureHeadDrop(userId)      : -999f;
             float leanForward   = userId != 0 ? MeasureLeanForward(userId)   : -999f;
             float shoulderRaise = userId != 0 ? MeasureShoulderRaise(userId) : -999f;
+            float spinebaseZ    = userId != 0 ? MeasureSpinebaseZ(userId)    : -999f;
             float sway          = MeasureBodySway();
 
             // ── 組合 payload 送後端分類 ─────────────────────────────
@@ -171,20 +195,23 @@ public class KinectEmotionSender : MonoBehaviour
                 : PlayerPrefs.GetString("session_id", "unknown");
             var payload = new SensorPayload
             {
-                session_id            = sid,
-                face_happy            = happy.ToString(),
-                face_looking_away     = lookAway.ToString(),
-                face_mouth_moved      = mouthMoved.ToString(),
-                face_mouth_open       = mouthOpen.ToString(),
-                face_left_eye_closed  = leftEye.ToString(),
-                face_right_eye_closed = rightEye.ToString(),
-                skel_head_drop        = headDrop,
-                skel_lean_forward     = leanForward,
-                skel_shoulder_raise   = shoulderRaise,
-                body_sway             = sway,
-                audio_rms             = audioRms,
-                response_time_ms      = responseMs,
-                timestamp             = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0,
+                session_id             = sid,
+                face_happy             = happy.ToString(),
+                face_looking_away      = lookAway.ToString(),
+                face_mouth_moved       = mouthMoved.ToString(),
+                face_mouth_open        = mouthOpen.ToString(),
+                face_left_eye_closed   = leftEye.ToString(),
+                face_right_eye_closed  = rightEye.ToString(),
+                skel_head_drop         = headDrop,
+                skel_lean_forward      = leanForward,
+                skel_shoulder_raise    = shoulderRaise,
+                skel_spinebase_z       = spinebaseZ,
+                body_sway              = sway,
+                audio_rms              = audioRms,
+                audio_pitch_variance   = audioSender != null ? audioSender.CurrentPitchVariance : 0f,
+                skel_handtip_velocity  = _latestHandTipVelocity,
+                response_time_ms       = responseMs,
+                timestamp              = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000.0,
             };
 
             StartCoroutine(PostSensor(payload));
@@ -217,6 +244,13 @@ public class KinectEmotionSender : MonoBehaviour
         var spine = GetJoint(userId, KinectInterop.JointType.SpineShoulder);
         if (!sL.HasValue || !sR.HasValue || !spine.HasValue) return -999f;
         return (sL.Value.y + sR.Value.y) / 2f - spine.Value.y;
+    }
+
+    /// <summary>SpineBase Z 深度（公尺，距 Kinect 的距離）。-999 = 未追蹤。</summary>
+    float MeasureSpinebaseZ(long userId)
+    {
+        var spineBase = GetJoint(userId, KinectInterop.JointType.SpineBase);
+        return spineBase.HasValue ? spineBase.Value.z : -999f;
     }
 
     /// <summary>SpineBase 位置標準差（公尺）。數值越大 = 身體晃動越多。</summary>
@@ -279,9 +313,13 @@ class SensorPayload
     public float skel_head_drop;
     public float skel_lean_forward;
     public float skel_shoulder_raise;
+    public float skel_spinebase_z;      // SpineBase Z 深度（B 階段）
     // 彙整訊號
     public float  body_sway;
     public float  audio_rms;
+    // B 階段擴充欄位
+    public float  audio_pitch_variance;
+    public float  skel_handtip_velocity;
     public int    response_time_ms;
     public double timestamp;
 }

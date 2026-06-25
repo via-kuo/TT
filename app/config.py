@@ -27,15 +27,28 @@ class Settings(BaseSettings):
     redis_host: str = "redis"
     redis_port: int = 6379
     redis_password: str = ""
-    redis_url: str = ""  # 若為空，由 build_redis_url 自動組裝
+    redis_url: str = ""  # 若為空，由 build_urls 自動組裝
+
+    # === PostgreSQL ===
+    postgres_host: str = "db"
+    postgres_port: int = 5432
+    postgres_user: str = "postgres"
+    postgres_password: str = ""
+    postgres_db: str = "rememo"
+    postgres_dsn: str = ""  # 若為空，由 build_urls 自動組裝
 
     @model_validator(mode="after")
-    def build_redis_url(self) -> "Settings":
+    def build_urls(self) -> "Settings":
         if not self.redis_url:
             if self.redis_password:
                 self.redis_url = f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}"
             else:
                 self.redis_url = f"redis://{self.redis_host}:{self.redis_port}"
+        if not self.postgres_dsn:
+            self.postgres_dsn = (
+                f"postgresql://{self.postgres_user}:{self.postgres_password}"
+                f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+            )
         return self
 
 

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 using Windows.Kinect;
@@ -14,6 +15,8 @@ public class KinectAudioSender : MonoBehaviour
 
     /// <summary>Kinect 麥克風即時音量（EMA 平滑），供情緒判斷使用。0 = 靜音，>0.015 通常為語音。</summary>
     public float CurrentAudioRms { get; private set; } = 0f;
+    /// <summary>音高變異（Hz²，B 階段）。靜音或尚無足夠歷史時為 0。</summary>
+    public float CurrentPitchVariance { get; private set; } = 0f;
 
     private WebSocket wsStt;
 
@@ -23,6 +26,14 @@ public class KinectAudioSender : MonoBehaviour
     private const int CHUNK_SIZE = 3200;
     private bool isInitialized = false;
     private bool isSttActive = false;
+
+    // Pitch detection（B 階段）
+    private const int KINECT_AUDIO_SAMPLE_RATE = 16000;
+    private const int PITCH_BUF_SIZE           = 512;   // 32ms @ 16 kHz
+    private const int PITCH_HISTORY_SIZE        = 15;
+    private readonly float[]      _pitchBuf     = new float[PITCH_BUF_SIZE];
+    private int                   _pitchBufPos  = 0;
+    private readonly Queue<float> _pitchHistory  = new Queue<float>();
 
     void Start()
     {
@@ -107,6 +118,19 @@ public class KinectAudioSender : MonoBehaviour
                 subFrame.CopyFrameDataToArray(floatBuffer);
 
                 CurrentAudioRms = Mathf.Lerp(CurrentAudioRms, ComputeRms(floatBuffer), 0.4f);
+
+                // B 階段：音高偵測樣本累積
+                int sCount = (int)(frameBytes / 4);
+                for (int i = 0; i < sCount; i++)
+                {
+                    _pitchBuf[_pitchBufPos++] = BitConverter.ToSingle(floatBuffer, i * 4);
+                    if (_pitchBufPos >= PITCH_BUF_SIZE)
+                    {
+                        UpdatePitch(_pitchBuf);
+                        _pitchBufPos = 0;
+                    }
+                }
+
                 byte[] int16Buffer = ConvertFloat32ToInt16(floatBuffer);
 
                 audioAccumulator.Write(int16Buffer, 0, int16Buffer.Length);
@@ -149,6 +173,36 @@ public class KinectAudioSender : MonoBehaviour
             result[i * 2 + 1] = b[1];
         }
         return result;
+    }
+
+    private void UpdatePitch(float[] samples)
+    {
+        if (CurrentAudioRms < 0.005f) return;  // 靜音跳過
+
+        int minPeriod = KINECT_AUDIO_SAMPLE_RATE / 400;  // 40 samples（上限 400 Hz）
+        int maxPeriod = KINECT_AUDIO_SAMPLE_RATE / 80;   // 200 samples（下限 80 Hz）
+
+        float maxCorr    = float.MinValue;
+        int   bestPeriod = maxPeriod;
+        for (int period = minPeriod; period <= maxPeriod; period++)
+        {
+            float corr = 0f;
+            int   len  = samples.Length - period;
+            for (int i = 0; i < len; i++)
+                corr += samples[i] * samples[i + period];
+            if (corr > maxCorr) { maxCorr = corr; bestPeriod = period; }
+        }
+
+        float pitch = (float)KINECT_AUDIO_SAMPLE_RATE / bestPeriod;
+        _pitchHistory.Enqueue(pitch);
+        if (_pitchHistory.Count > PITCH_HISTORY_SIZE) _pitchHistory.Dequeue();
+
+        float mean = 0f;
+        foreach (var p in _pitchHistory) mean += p;
+        mean /= _pitchHistory.Count;
+        float variance = 0f;
+        foreach (var p in _pitchHistory) variance += (p - mean) * (p - mean);
+        CurrentPitchVariance = variance / _pitchHistory.Count;
     }
 
     void OnDestroy()

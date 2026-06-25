@@ -5,6 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import redis.asyncio as aioredis
 from config import settings
+from db.session import engine
+from db.models import Base
 from services.llm import LLMService
 from services.stt import STTService
 from services.user_profile_client import MockUserProfileClient
@@ -12,7 +14,7 @@ from services.image import StabilityImageService
 from services.rag_client import MockRAGClient
 from privacy.deidentifier import Deidentifier
 from orchestrator import TherapyOrchestrator
-from routers import ws_stt, session, sensor
+from routers import ws_stt, ws_calibration, session, sensor
 
 
 @asynccontextmanager
@@ -33,6 +35,14 @@ async def lifespan(app: FastAPI):
         deidentifier=app.state.deidentifier,
     )
 
+    # PostgreSQL — SQLAlchemy AsyncSession
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("✅ PostgreSQL (SQLAlchemy) 連線成功")
+    except Exception as e:
+        print(f"⚠️  PostgreSQL 連線失敗，持久化功能停用: {e}")
+
     yield
 
     print("👋 關閉服務...")
@@ -41,6 +51,7 @@ async def lifespan(app: FastAPI):
     await app.state.stt_service.close()
     await app.state.user_profile.close()
     await app.state.image_service.close()
+    await engine.dispose()
 
 
 app = FastAPI(title="Rememo Backend", version="0.1.0", lifespan=lifespan)
@@ -53,6 +64,7 @@ app.add_middleware(
 )
 
 app.include_router(ws_stt.router)
+app.include_router(ws_calibration.router)
 app.include_router(session.router)
 app.include_router(sensor.router)
 

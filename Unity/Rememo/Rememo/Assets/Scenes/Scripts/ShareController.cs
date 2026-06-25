@@ -1,5 +1,7 @@
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
@@ -19,6 +21,11 @@ public class ShareController : MonoBehaviour
     [Header("Kinect 整合")]
     [Tooltip("拖入場景中的 KinectAudioSender；若留空則退回使用內建麥克風")]
     public KinectAudioSender kinectAudioSender;
+    [Tooltip("拖入場景中的 KinectSensorSender；供分享階段情緒追蹤及反應時間計算")]
+    public KinectSensorSender kinectSensorSender;
+
+    [Header("後端設定")]
+    public string backendUrl = "http://localhost:8000";
 
     [Header("WebSocket 設定（內建麥克風模式用）")]
     public string serverUrl = "ws://localhost:8000/ws/stt";
@@ -76,6 +83,8 @@ public class ShareController : MonoBehaviour
         string question = PlayerPrefs.GetString("ClosingQuestion", "");
         closingFullText = string.IsNullOrEmpty(question) ? text : $"{text}\n{question}";
         closingText.text = closingFullText;
+        // 收尾問題顯示完畢 → 啟動反應時間計時
+        kinectSensorSender?.OnQuestionAsked();
     }
 
     void OnReplay()
@@ -254,7 +263,12 @@ public class ShareController : MonoBehaviour
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeCharByChar(msg.text));
-        if (msg.isFinal) OnSttFinal();
+        if (msg.isFinal)
+        {
+            OnSttFinal();
+            if (!string.IsNullOrWhiteSpace(msg.text))
+                StartCoroutine(PostTranscript(msg.text));
+        }
     }
 
     IEnumerator SttTimeout()
@@ -294,6 +308,20 @@ public class ShareController : MonoBehaviour
             inputText.text = target;
             displayedText  = target;
         }
+    }
+
+    IEnumerator PostTranscript(string text)
+    {
+        string sessionId = PlayerPrefs.GetString("session_id", "");
+        if (string.IsNullOrEmpty(sessionId)) yield break;
+        byte[] body = Encoding.UTF8.GetBytes($"{{\"text\":{JsonUtility.ToJson(text)}}}");
+        using var req = new UnityWebRequest($"{backendUrl}/session/{sessionId}/response", "POST");
+        req.uploadHandler   = new UploadHandlerRaw(body);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+        yield return req.SendWebRequest();
+        if (req.result != UnityWebRequest.Result.Success)
+            Debug.LogWarning($"[Share Transcript] POST 失敗: {req.error}");
     }
 
     void OnDestroy()

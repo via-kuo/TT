@@ -34,8 +34,8 @@ public class GameController : MonoBehaviour
     [Header("Kinect 整合")]
     [Tooltip("拖入場景中的 KinectAudioSender；若留空則退回使用內建麥克風")]
     public KinectAudioSender kinectAudioSender;
-    [Tooltip("拖入場景中的 KinectEmotionSender；若留空則不追蹤反應時間")]
-    public KinectEmotionSender kinectEmotionSender;
+    [Tooltip("拖入場景中的 KinectSensorSender；若留空則不追蹤反應時間")]
+    public KinectSensorSender kinectSensorSender;
 
     [Header("WebSocket STT 設定（內建麥克風模式用）")]
     public string sttServerUrl = "ws://localhost:8000/ws/stt";
@@ -315,7 +315,7 @@ public class GameController : MonoBehaviour
         loadingSpinner.SetActive(false);
         aiText.text = resp.question;
         aiText.gameObject.SetActive(true);
-        kinectEmotionSender?.OnQuestionAsked();
+        kinectSensorSender?.OnQuestionAsked();
 
         StartCoroutine(LoadPhoto(BuildImageUrl(resp.image_path)));
     }
@@ -415,7 +415,7 @@ public class GameController : MonoBehaviour
         currentState = resp.state;
         aiText.text = resp.question;
         aiText.gameObject.SetActive(true);
-        kinectEmotionSender?.OnQuestionAsked();
+        kinectSensorSender?.OnQuestionAsked();
     }
 
     void UpdateRoundBadge()
