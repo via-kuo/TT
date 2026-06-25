@@ -56,13 +56,19 @@ def _score_persistence(sad_rate: float, looking_away_rate: float,
 
 
 def _score_emotion(emo: dict[str, int],
-                   silence_rate: float = 0.0, high_pitch_rate: float = 0.0) -> int:
-    """情緒狀況（OERS）：靜默率與音高變異輔助修正主導情緒。"""
-    # 長時間靜默（>60% frames）→ 低落信號，優先判定
-    if silence_rate > 0.60:
-        return 1
-    # 高音高變異 + 焦躁情緒累積 → 焦躁
-    if high_pitch_rate > 0.40 and emo.get("angry", 0) >= emo.get("happy", 0):
+                   high_pitch_rate: float = 0.0,
+                   pitch_baseline: float = 0.0) -> int:
+    """情緒狀況（OERS）：以 EMA 主導情緒為基底，音高變異作修正。
+
+    silence_rate 已從此函式移除：silence_n 計整個療程靜默 frame，
+    長者正常參與時 silence_rate 仍超過 0.90，用它作情緒門檻會讓所有人得 1 分。
+    「完全不說話」信號由 _score_interaction（response_count == 0）負責。
+
+    high_pitch_rate 的計數門檻已在 sensor.py 個人化（baseline × 2），
+    有基準時用 0.40；無基準時退守 0.55（計數仍用固定 50 Hz²，較不可靠）。
+    """
+    pitch_agitation_bar = 0.40 if pitch_baseline > 1.0 else 0.55
+    if high_pitch_rate > pitch_agitation_bar and emo.get("angry", 0) >= emo.get("happy", 0):
         return 2
     dominant = max(emo, key=emo.get) if any(emo.values()) else "happy"
     return {"sad": 1, "angry": 2, "excited": 3, "happy": 4}[dominant]
@@ -214,11 +220,16 @@ async def session_assessment(request: Request, session_id: str, db: AsyncSession
     hand_active_rate  = hand_active_n    / frame_count
     avg_response_ms   = rt_sum / rt_count if rt_count > 0 else None
 
+    # 讀取個人音高校正基準（必須在 scores 計算之前）
+    calib_raw      = await r.get(f"session:{session_id}:calibration")
+    calib          = json.loads(calib_raw) if calib_raw else {}
+    pitch_baseline = float(calib.get("pitchVarianceBaseline", 0.0))
+
     scores = {
         "參與度":   _score_engagement(looking_away_rate, mouth_moved_rate, high_sway_rate),
         "注意力":   _score_attention(looking_away_rate, eye_closed_rate),
         "持續力":   _score_persistence(sad_rate, looking_away_rate, skel_absent_rate, far_rate),
-        "情緒狀況": _score_emotion(emo, silence_rate, high_pitch_rate),
+        "情緒狀況": _score_emotion(emo, high_pitch_rate, pitch_baseline),
         "互動頻率": _score_interaction(response_count, speech_chars, avg_response_ms, hand_active_rate),
     }
 

@@ -153,9 +153,18 @@ async def _load_calibration(r, session_id: str) -> dict | None:
     return json.loads(raw) if raw else None
 
 
+def _pitch_threshold(calib: dict | None) -> float:
+    """個人化音高變異門檻（有效校正基準時為 baseline × 2，否則退回固定值）。"""
+    if calib:
+        baseline = calib.get("pitchVarianceBaseline", 0.0)
+        if baseline > 1.0:
+            return max(PITCH_VAR_EXCITED, baseline * 2.0)
+    return PITCH_VAR_EXCITED
+
+
 # ════════════ EMA 平滑（狀態存 Redis）════════════════════════════════
 
-async def _ema_classify(r, session_id: str, p: SensorPayload) -> str:
+async def _ema_classify(r, session_id: str, p: SensorPayload, calib: dict | None = None) -> str:
     """
     從 Redis 讀取上一次的 EMA 分數 → 計算本次原始分數 →
     套用個人校正基準（若有）→ EMA 更新 → 寫回 Redis → 分類。
@@ -164,7 +173,7 @@ async def _ema_classify(r, session_id: str, p: SensorPayload) -> str:
     單點分類雜訊大，需要時間平滑才能反映真實狀態。
     """
     ema_key = f"session:{session_id}:ema"
-    ema, calib = await r.hgetall(ema_key), await _load_calibration(r, session_id)
+    ema = await r.hgetall(ema_key)
 
     prev_eng = float(ema.get("engagement", 0))
     prev_hap = float(ema.get("happiness",  0))
@@ -178,8 +187,8 @@ async def _ema_classify(r, session_id: str, p: SensorPayload) -> str:
         audio_eng            * 0.20    # 音量（說話 = 有參與，權重 20%）
     )
     raw_hap = _face_happiness(p) - _skel_tension(p)  # 正向表情 − 聳肩緊張
-    # B 階段：音高變異混入焦躁計算（audio_pitch_variance 預設 0.0，B 上線前不影響結果）
-    pitch_agi = min(1.0, p.audio_pitch_variance / max(PITCH_VAR_EXCITED, 1e-6))
+    # B 階段：音高變異混入焦躁計算（以個人校正基準 ×2 作為門檻，Paper 2 §4.1.1）
+    pitch_agi = min(1.0, p.audio_pitch_variance / max(_pitch_threshold(calib), 1e-6))
     raw_agi   = (
         max(0.0, min(1.0, p.body_sway / max(SWAY_AGITATION_MIN, 1e-6) - 1.0)) * 0.70
         + pitch_agi * 0.30
@@ -210,7 +219,7 @@ async def _ema_classify(r, session_id: str, p: SensorPayload) -> str:
 
 # ════════════ Session 統計累積 ════════════════════════════════════════
 
-async def _update_session_stats(r, session_id: str, p: SensorPayload, emotion_raw: str):
+async def _update_session_stats(r, session_id: str, p: SensorPayload, emotion_raw: str, calib: dict | None = None):
     """
     每收到一個 sensor frame 就累積統計至 session:{id}:stats。
     供療程結束後計算五指標評估表使用。
@@ -247,8 +256,8 @@ async def _update_session_stats(r, session_id: str, p: SensorPayload, emotion_ra
     if p.skel_spinebase_z is not None and p.skel_spinebase_z > SPINEBASE_LEAVING_Z:
         pipe.hincrby(key, "far_n", 1)
 
-    # B 階段：音高變異（焦躁/亢奮的聲學特徵）
-    if p.audio_pitch_variance > PITCH_VAR_EXCITED:
+    # B 階段：音高變異（焦躁/亢奮的聲學特徵，以個人基準 ×2 作為門檻）
+    if p.audio_pitch_variance > _pitch_threshold(calib):
         pipe.hincrby(key, "high_pitch_var_n", 1)
 
     # B 階段：手部主動動作（遊戲互動肢體指標）
@@ -269,9 +278,10 @@ async def _update_session_stats(r, session_id: str, p: SensorPayload, emotion_ra
 @router.post("/emotion", summary="接收 Kinect 原始感測資料，後端分類後存 Redis")
 async def receive_sensor(request: Request, body: SensorPayload):
     r = request.app.state.redis
+    calib = await _load_calibration(r, body.session_id)
 
-    emotion_raw   = await _ema_classify(r, body.session_id, body)
-    await _update_session_stats(r, body.session_id, body, emotion_raw)
+    emotion_raw   = await _ema_classify(r, body.session_id, body, calib)
+    await _update_session_stats(r, body.session_id, body, emotion_raw, calib)
     emotion_label = _EMOTION_LABEL.get(emotion_raw, "適當")
     ts            = body.timestamp or time.time()
 
