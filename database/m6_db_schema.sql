@@ -40,21 +40,20 @@ CREATE TABLE PATIENTS (
 
 CREATE TABLE SESSIONS (
     id SERIAL PRIMARY KEY,
-    session_uuid TEXT UNIQUE,
     patient_id INTEGER REFERENCES PATIENTS(id) ON DELETE CASCADE,
     therapist_id INTEGER REFERENCES THERAPISTS(id) ON DELETE SET NULL,
     organization_id INTEGER REFERENCES ORGANIZATIONS(id) ON DELETE CASCADE,
-    date DATE NOT NULL,
-    mode TEXT NOT NULL,
-    start_scene TEXT,
-    score_participation INTEGER,
+    date DATE NOT NULL,                    
+    mode TEXT NOT NULL,                    
+    start_scene TEXT,                      
+    score_participation INTEGER,          
     score_attention INTEGER,
     score_endurance INTEGER,
     score_emotion INTEGER,
     score_interaction INTEGER,
-    total_score INTEGER,
-    therapist_note TEXT,
-    story_summary TEXT
+    total_score INTEGER,                
+    therapist_note TEXT,                    
+    story_summary TEXT                      
 );
 
 CREATE TABLE ROUNDS (
