@@ -136,6 +136,7 @@ def main() -> None:
         warmup_ratio=0.1,
         bf16=True,
         gradient_checkpointing=True,
+        gradient_checkpointing_kwargs={"use_reentrant": False},
         logging_steps=10,
         eval_strategy="epoch",
         save_strategy="epoch",
