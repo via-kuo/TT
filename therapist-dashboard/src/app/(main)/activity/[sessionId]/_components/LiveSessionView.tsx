@@ -5,8 +5,6 @@ import { useState, Fragment, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 
 const EMOTION_COLORS: Record<string, string> = {
  適當: "#34c759",
@@ -23,7 +21,7 @@ const MOCK_ELDER_RESPONSE =
 type View = "scene" | "response";
 
 
-export function LiveSessionView({ sessionId }: { sessionId: string }) {
+export function LiveSessionView() {
  const [session, setSession] = useState(mockActiveSession);
  const [currentRound, setCurrentRound] = useState(session.currentRound);
  const [view, setView] = useState<View>("scene");
@@ -45,28 +43,6 @@ export function LiveSessionView({ sessionId }: { sessionId: string }) {
      };
    }
  }, []);
-
- // 每 2 秒從後端 polling 情緒與反應時間
- useEffect(() => {
-   const poll = async () => {
-     try {
-       const res = await fetch(`${API_BASE}/session/${sessionId}/metrics`);
-       if (!res.ok) return;
-       const data = await res.json();
-       setSession((s) => ({
-         ...s,
-         emotionState: data.emotion ?? s.emotionState,
-         responseTime: data.response_time ?? s.responseTime,
-       }));
-     } catch {
-       // 網路暫時中斷時保留上次數值，不中斷顯示
-     }
-   };
-
-   poll();
-   const timer = setInterval(poll, 2000);
-   return () => clearInterval(timer);
- }, [sessionId]);
 
 
  const handlePause = () => setSession((s) => ({ ...s, status: "paused" }));
