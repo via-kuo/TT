@@ -1,13 +1,15 @@
 # ingest.py
-# ingest.py
 import os
 import re
 import importlib.resources
+from dotenv import load_dotenv
 from symspellpy import SymSpell
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+load_dotenv()
 
 class AdvancedCleaner:
     def __init__(self):
@@ -47,15 +49,15 @@ def process_and_save(file_path, elder_id):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=250, chunk_overlap=40)
     chunks = text_splitter.split_text(cleaned_text)
     
-    embeddings = OllamaEmbeddings(model="bge-m3")
-    
+    embeddings = OllamaEmbeddings(model=os.getenv("EMBEDDING_MODEL", "bge-m3"))
+
     # 存入 Qdrant 向量資料庫
     QdrantVectorStore.from_texts(
         texts=chunks,
         embedding=embeddings,
         metadatas=[{"elder_id": elder_id}] * len(chunks),
-        path="./qdrant_db",
-        collection_name="elderly_memories",
+        path=os.getenv("QDRANT_PATH", "./qdrant_db"),
+        collection_name=os.getenv("QDRANT_COLLECTION", "elderly_memories"),
     )
     print(f"✅ Qdrant 向量資料庫已建立。")
 
