@@ -32,7 +32,7 @@ import json
 from services.llm import LLMService
 from services.image import StabilityImageService
 from services.rag_client import MockRAGClient
-from services.user_profile_client import MockUserProfileClient
+from services.user_profile_db import DBUserProfileClient
 from privacy.deidentifier import Deidentifier
 
 # 5W1H 優先順序（由易到難，對齊 問題設計規則.pdf；Why 條件式使用）
@@ -77,7 +77,7 @@ class TherapyOrchestrator:
         llm: LLMService,
         image: StabilityImageService,
         rag: MockRAGClient,
-        user_profile: MockUserProfileClient,
+        user_profile: DBUserProfileClient,
         deidentifier: Deidentifier,
     ):
         self.llm = llm

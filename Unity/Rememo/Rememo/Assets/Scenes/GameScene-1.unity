@@ -345,11 +345,13 @@ MonoBehaviour:
   micButton: {fileID: 695202855}
   micButtonImage: {fileID: 695202856}
   aiText: {fileID: 1133395053}
-  sceneImage: {fileID: 1056907269}
+  sceneImage: {fileID: 0}
   inputText: {fileID: 1676628713}
+  kinectAudioSender: {fileID: 1034624761}
   serverUrl: ws://localhost:8000/ws/stt
   sampleRate: 16000
   maxRecordSeconds: 60
+  charInterval: 0.03
   testImages: []
 --- !u!114 &231164216
 MonoBehaviour:
@@ -364,13 +366,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameController
   totalRounds: 3
+  backendUrl: http://localhost:8000
+  userId: user_001
+  sessionId: sess_001
   roundNumber: {fileID: 475891553}
   roundTitle: {fileID: 1541757722}
   roundSub: {fileID: 1630486941}
   submitButton: {fileID: 995634905}
+  micButton: {fileID: 695202855}
+  micButtonImage: {fileID: 0}
   aiText: {fileID: 1133395053}
   inputText: {fileID: 1676628713}
   loadingSpinner: {fileID: 1376622245}
+  photoDisplay: {fileID: 1056907271}
+  kinectAudioSender: {fileID: 1034624761}
+  kinectSensorSender: {fileID: 1034624762}
+  sttServerUrl: ws://localhost:8000/ws/stt
+  sampleRate: 16000
+  maxRecordSeconds: 60
+  charInterval: 0.03
 --- !u!1 &244112691
 GameObject:
   m_ObjectHideFlags: 0
@@ -1015,9 +1029,11 @@ MonoBehaviour:
   aiText: {fileID: 0}
   sceneImage: {fileID: 0}
   inputText: {fileID: 0}
+  kinectAudioSender: {fileID: 0}
   serverUrl: ws://localhost:8000/ws/stt
   sampleRate: 16000
   maxRecordSeconds: 60
+  charInterval: 0.03
   testImages: []
 --- !u!1 &695202853
 GameObject:
@@ -1641,46 +1657,56 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 7885733304640563316, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+      propertyPath: audioSender
+      value: 
+      objectReference: {fileID: 1034624761}
+    - target: {fileID: 7885733304640563316, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+      propertyPath: gameController
+      value: 
+      objectReference: {fileID: 231164216}
+    m_RemovedComponents:
+    - {fileID: 7885733304640563316, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1028160530385159004, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1034624760}
+      addedObject: {fileID: 1034624762}
   m_SourcePrefab: {fileID: 100100000, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
 --- !u!1 &1034624759 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1028160530385159004, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
   m_PrefabInstance: {fileID: 1034624758}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1034624760
+--- !u!114 &1034624761 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3165157922539519360, guid: 3c9a3155defe58640b5d93df0f2bfce7, type: 3}
+  m_PrefabInstance: {fileID: 1034624758}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034624759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a154f997ac98494fafb32a03d9f8413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KinectAudioSender
+--- !u!114 &1034624762
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1034624759}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a669d15f0035bbf4889c8092b5bcd201, type: 3}
+  m_Script: {fileID: 11500000, guid: ac18c23a827f4bd449621411bd592aec, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractionManager
-  playerIndex: 0
-  leftHandInteraction: 1
-  rightHandInteraction: 1
-  guiHandCursor: {fileID: 1525525769}
-  gripHandTexture: {fileID: 21300000, guid: 9eb991669e527294d8161833d04c9e60, type: 3}
-  releaseHandTexture: {fileID: 21300000, guid: 9eb991669e527294d8161833d04c9e60, type: 3}
-  normalHandTexture: {fileID: 21300000, guid: 9eb991669e527294d8161833d04c9e60, type: 3}
-  handOverlayCursor: 0
-  smoothFactor: 10
-  allowHandClicks: 1
-  allowPushToClick: 1
-  controlMouseCursor: 0
-  controlMouseDrag: 0
-  interactionListeners: []
-  debugText: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::KinectSensorSender
+  backendUrl: http://localhost:8000
+  sendInterval: 2
+  gameController: {fileID: 231164216}
+  audioSender: {fileID: 1034624761}
+  audioSpeechThreshold: 0.015
 --- !u!1 &1056907267
 GameObject:
   m_ObjectHideFlags: 0
@@ -1691,7 +1717,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1056907268}
   - component: {fileID: 1056907270}
-  - component: {fileID: 1056907269}
+  - component: {fileID: 1056907271}
   m_Layer: 5
   m_Name: SceneImage
   m_TagString: Untagged
@@ -1718,36 +1744,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 56}
   m_SizeDelta: {x: 700, y: 700}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1056907269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1056907267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.83137256, g: 0.77254903, b: 0.6901961, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1056907270
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1756,6 +1752,33 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1056907267}
   m_CullTransparentMesh: 1
+--- !u!114 &1056907271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1056907267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.83137256, g: 0.77254903, b: 0.6901961, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &1133395050
 GameObject:
   m_ObjectHideFlags: 0
@@ -1828,7 +1851,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u7B2C\u4E00\u884C\n\u7B2C\u4E8C\u884C\n\u7B2C\u4E09\u884C\n\u7B2C\u56DB\u884C"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7b0848de019d74b028f80380e3f38bbe, type: 2}
   m_sharedMaterial: {fileID: 9175543853248863310, guid: 7b0848de019d74b028f80380e3f38bbe, type: 2}

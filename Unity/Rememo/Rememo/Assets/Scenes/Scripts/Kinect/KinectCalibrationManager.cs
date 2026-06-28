@@ -30,6 +30,7 @@ public class KinectCalibrationManager : MonoBehaviour
     private List<float> happyBuffer = new List<float>();
     private List<float> lookingAwayBuffer = new List<float>();
     private List<float> mouthMovedBuffer = new List<float>();
+    private List<float> _pitchVarBuffer  = new List<float>();
 
     // ── 新增：骨架幾何緩衝 ─────────────────────────────
     private List<float> _spineYBuffer = new List<float>();
@@ -39,18 +40,33 @@ public class KinectCalibrationManager : MonoBehaviour
     private List<float> _spineZBuffer = new List<float>();
     // ───────────────────────────────────────────────────
 
+    [Header("感測器參考")]
+    [Tooltip("拖入場景中的 KinectAudioSender；校正期間量測音高基準")]
+    public KinectAudioSender audioSender;
+
     private WebSocket ws;
     private KinectManager kinectManager;
-    private KinectEmotionSender emotionSender;
+    private KinectSensorSender sensorSender;
 
     void Start()
     {
         kinectManager = KinectManager.Instance;
-        emotionSender = GetComponent<KinectEmotionSender>();
+        sensorSender = GetComponent<KinectSensorSender>();
+
+        if (audioSender == null)
+            Debug.LogWarning("[Calibration] audioSender 未設定，pitchVarianceBaseline 將為 0（個人化音高門檻無效）");
 
         SetStatus(false);
 
-        ws = new WebSocket(calibrationUrl);
+        // session_id 必須在 PlayerPrefs 中（由前一個 Scene 建立），才能讓後端把校正基準與本次療程綁定
+        string sessionId = PlayerPrefs.GetString("session_id", "");
+        if (string.IsNullOrEmpty(sessionId))
+            Debug.LogWarning("[Calibration] PlayerPrefs 中無 session_id，校正基準將無法存入 Redis");
+        string wsUrl = string.IsNullOrEmpty(sessionId)
+            ? calibrationUrl
+            : $"{calibrationUrl}?session_id={sessionId}";
+
+        ws = new WebSocket(wsUrl);
         ws.OnOpen += (s, e) => Debug.Log("[Calibration WS] 已連線");
         ws.OnError += (s, e) => Debug.LogError($"[Calibration WS] 錯誤: {e.Message}");
         ws.ConnectAsync();
@@ -157,11 +173,15 @@ public class KinectCalibrationManager : MonoBehaviour
 
     void CollectEmotionData()
     {
-        if (emotionSender == null) return;
+        if (sensorSender == null) return;
 
-        happyBuffer.Add(emotionSender.LastHappy);
-        lookingAwayBuffer.Add(emotionSender.LastLookingAway);
-        mouthMovedBuffer.Add(emotionSender.LastMouthMoved);
+        happyBuffer.Add(sensorSender.LastHappy);
+        lookingAwayBuffer.Add(sensorSender.LastLookingAway);
+        mouthMovedBuffer.Add(sensorSender.LastMouthMoved);
+
+        // 靜音期間的音高變異值不具代表性，僅在有聲音時蒐集
+        if (audioSender != null && audioSender.CurrentAudioRms > 0.005f)
+            _pitchVarBuffer.Add(audioSender.CurrentPitchVariance);
     }
 
     bool CheckStability()
@@ -232,6 +252,7 @@ public class KinectCalibrationManager : MonoBehaviour
         _shoulderLXBuffer.Clear();
         _shoulderRXBuffer.Clear();
         _spineZBuffer.Clear();
+        _pitchVarBuffer.Clear();
     }
     // ───────────────────────────────────────────────────
 
@@ -277,6 +298,7 @@ public class KinectCalibrationManager : MonoBehaviour
             happyBaseline = Average(happyBuffer),
             lookingAwayBaseline = Average(lookingAwayBuffer),
             mouthMovedBaseline = Average(mouthMovedBuffer),
+            pitchVarianceBaseline = Average(_pitchVarBuffer),
             jointKeys = new List<string>(baselineJoints.Keys).ToArray(),
             jointX = GetAxis(baselineJoints, 0),
             jointY = GetAxis(baselineJoints, 1),
@@ -321,6 +343,7 @@ public class CalibrationPayload
     public float happyBaseline;
     public float lookingAwayBaseline;
     public float mouthMovedBaseline;
+    public float pitchVarianceBaseline;
     public string[] jointKeys;
     public float[] jointX;
     public float[] jointY;

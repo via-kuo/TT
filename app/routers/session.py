@@ -124,6 +124,8 @@ async def session_start(request: Request, user_id: str, session_id: str, therapi
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"療程開場失敗: {str(e)}")
 
 

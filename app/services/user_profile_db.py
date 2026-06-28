@@ -42,6 +42,9 @@ class DBUserProfileClient:
         taboos = []
         if patient.taboo_words:
             taboos = [w.strip() for w in patient.taboo_words.split(",") if w.strip()]
+
+        scene_weights = patient.scene_weights or ""
+        today_topic = scene_weights.split(",")[0].strip() if scene_weights else "懷舊生活"
         
         # ⚠️ key 對齊 mock,避免動 orchestrator
         return {
@@ -51,6 +54,8 @@ class DBUserProfileClient:
             "birth_place": patient.hometown or "",     # DB: hometown → mock: birth_place
             "main_occupation": patient.occupation,       # DB: occupation → mock: main_occupation
             "taboos": taboos,
+            "today_topic": today_topic,
+            "topic_category": [today_topic],
         }
     
     async def close(self):

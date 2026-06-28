@@ -7,6 +7,20 @@ import httpx
 from pathlib import Path
 from config import settings
 
+# ⭐ OpenCC：簡體 → 繁體(台灣正體)
+try:
+    import opencc
+    _converter = opencc.OpenCC("s2twp")   # s2twp = 簡體→台灣繁體+慣用詞
+except ImportError:
+    _converter = None
+
+
+def _to_traditional(text: str) -> str:
+    """把 STT 輸出的簡體字轉成繁體，沒裝 opencc 就原文回傳。"""
+    if _converter is None:
+        return text
+    return _converter.convert(text)
+
 
 class STTService:
     """faster-whisper-server 客戶端。"""
@@ -14,19 +28,11 @@ class STTService:
     def __init__(self):
         self.host = settings.stt_host
         self.model = settings.stt_model
-        # 音訊轉錄可能很慢(尤其是大檔),timeout 設長一點
         self.client = httpx.AsyncClient(timeout=120.0)
 
     async def transcribe_file(self, audio_path: str | Path, language: str = "zh") -> str:
         """
         從檔案路徑轉錄一段音訊。
-
-        Args:
-            audio_path: 音訊檔案路徑(wav/mp3 等)
-            language: 語言代碼,預設 "zh"(中文)
-
-        Returns:
-            轉錄出的文字
         """
         audio_path = Path(audio_path)
         if not audio_path.exists():
@@ -46,11 +52,17 @@ class STTService:
             )
 
         response.raise_for_status()
-        return response.json()["text"]
+        text = response.json()["text"]
+        return _to_traditional(text)   # ⭐ 轉繁體
 
-    async def transcribe_bytes(self, audio_bytes: bytes, filename: str = "audio.wav", language: str = "zh") -> str:
+    async def transcribe_bytes(
+        self,
+        audio_bytes: bytes,
+        filename: str = "audio.wav",
+        language: str = "zh",
+    ) -> str:
         """
-        從 bytes 轉錄一段音訊(之後 WebSocket 收到 audio chunks 時會用)。
+        從 bytes 轉錄一段音訊。
         """
         files = {"file": (filename, audio_bytes, "audio/wav")}
         data = {
@@ -64,7 +76,8 @@ class STTService:
             data=data,
         )
         response.raise_for_status()
-        return response.json()["text"]
+        text = response.json()["text"]
+        return _to_traditional(text)   # ⭐ 轉繁體
 
     async def close(self):
         await self.client.aclose()
