@@ -6,13 +6,12 @@ import Link from "next/link"; // Next.js 的路由連結元件
 import type { Session, SessionRound, Case } from "@/lib/types"; // 引入型別定義
 
 
-// 情緒文字對應的顏色（正向/穩定 → 綠色，激動 → 紅色，焦慮 → 黃色，沉默 → 灰色）
+// 情緒文字對應的顏色（適當 → 綠色，亢奮 → 紅色，焦躁 → 黃色，低落 → 灰色）
 const EMOTION_DOT: Record<string, string> = {
- 正向: "#34c759",
- 穩定: "#34c759",
- 激動: "#fb2c36",
- 焦慮: "#f0c52c",
- 沉默: "#888888",
+ 適當: "#34c759",
+ 亢奮: "#fb2c36",
+ 焦躁: "#f0c52c",
+ 低落: "#888888",
 };
 
 
@@ -104,7 +103,7 @@ export function HistorySessionView({
 
        {/* 逐筆渲染每個回合卡片 */}
        {rounds.map((round, idx) => {
-         const dotColor = EMOTION_DOT[round.emotion] ?? "#888"; // 取情緒對應顏色，找不到則用灰色
+         const dotColor = EMOTION_DOT[round.emotion] ?? "#888";
          return (
            // 白色圓角卡片，左右對齊內容
            <div key={round.id} className="bg-white rounded-xl px-6 py-5 flex items-center justify-between">
@@ -138,7 +137,7 @@ export function HistorySessionView({
                {/* 彩色圓點 + 情緒文字 */}
                <span className="text-[14px] font-medium flex items-center gap-1.5" style={{ color: dotColor }}>
                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: dotColor }} /> {/* 情緒顏色圓點 */}
-                 {round.emotion} {/* 情緒文字（正向、穩定…） */}
+                 {round.emotion}
                </span>
 
 

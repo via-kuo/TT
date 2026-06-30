@@ -72,7 +72,7 @@ export interface ActiveSession {
   status: "running" | "paused" | "ended";
   currentScene: string;
   elderResponse: string;
-  emotionState: "穩定" | "焦慮" | "激動" | "沉默";
+  emotionState: "適當" | "亢奮" | "焦躁" | "低落";
   responseTime: string;
   aiSuggestions: string[];
   tabooTopics: string[];
