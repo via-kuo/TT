@@ -9,7 +9,8 @@ from db.session import engine
 from db.models import Base
 from services.llm import LLMService
 from services.stt import STTService
-from services.user_profile_client import MockUserProfileClient
+from services.tts import TTSService 
+from services.user_profile_db import DBUserProfileClient
 from services.image import StabilityImageService
 from services.rag_client import MockRAGClient
 from privacy.deidentifier import Deidentifier
@@ -23,7 +24,8 @@ async def lifespan(app: FastAPI):
     app.state.redis              = aioredis.from_url(settings.redis_url, decode_responses=True)
     app.state.llm_service        = LLMService()
     app.state.stt_service        = STTService()
-    app.state.user_profile       = MockUserProfileClient()
+    app.state.tts_service        = TTSService()  
+    app.state.user_profile       = DBUserProfileClient()
     app.state.deidentifier       = Deidentifier()
     app.state.image_service      = StabilityImageService()
     app.state.rag_client         = MockRAGClient()
@@ -49,6 +51,7 @@ async def lifespan(app: FastAPI):
     await app.state.redis.aclose()
     await app.state.llm_service.close()
     await app.state.stt_service.close()
+    await app.state.tts_service.close()  
     await app.state.user_profile.close()
     await app.state.image_service.close()
     await engine.dispose()
@@ -152,3 +155,12 @@ async def test_image(
         prompt=prompt, session_id="test", round_number=1
     )
     return {"prompt": prompt, "saved_to": path}
+
+@app.post("/test/tts")
+async def test_tts(request: Request, text: str = "您好，今天天氣很好，想跟您聊聊運動會的回憶。"):
+    """測試 Edge-TTS 台灣女聲合成。"""
+    from fastapi.responses import FileResponse
+    path = await request.app.state.tts_service.synthesize(
+        text=text, session_id="test", round_number=1,
+    )
+    return FileResponse(path=path, media_type="audio/mpeg", filename="tts_test.mp3")
