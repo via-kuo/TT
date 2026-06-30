@@ -17,11 +17,8 @@ class Settings(BaseSettings):
     stt_host: str = "http://kinect:8000"
     stt_model: str = "Systran/faster-whisper-large-v3"
 
-    # === TTS (CosyVoice) ===
+    # === TTS (CosyVoice 已停用，改用 Edge-TTS) ===
 #    tts_host: str = "http://tts:8188"
-
-    # === Redis ===
-    redis_url: str = "redis://redis:6379"
 
     # === Stability AI ===
     stability_api_key: str = ""
@@ -35,9 +32,9 @@ class Settings(BaseSettings):
     # === PostgreSQL ===
     postgres_host: str = "db"
     postgres_port: int = 5432
-    postgres_user: str = "postgres"
-    postgres_password: str = ""
-    postgres_db: str = "rememo"
+    postgres_user: str = "user"
+    postgres_password: str = "password"
+    postgres_db: str = "m6_db"
     postgres_dsn: str = ""  # 若為空，由 build_urls 自動組裝
 
     @model_validator(mode="after")
@@ -49,7 +46,7 @@ class Settings(BaseSettings):
                 self.redis_url = f"redis://{self.redis_host}:{self.redis_port}"
         if not self.postgres_dsn:
             self.postgres_dsn = (
-                f"postgresql://{self.postgres_user}:{self.postgres_password}"
+                f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}"
                 f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
             )
         return self
