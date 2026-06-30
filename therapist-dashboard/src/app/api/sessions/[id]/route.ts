@@ -39,7 +39,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     score: s.total_score,
     totalScore: 20,
     averageResponseTime: s.avg_response_time != null ? `${s.avg_response_time} 秒` : "—",
-    overallEmotion: s.overall_emotion ?? "—",
+    overallEmotion: s.emotional_status ?? "—",
     storySummary: s.story_summary ?? "",
     rating: s.emotional_status ?? "—",
     mode: s.mode,

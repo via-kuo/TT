@@ -3,7 +3,6 @@
 
 import { useState } from "react"; // React 狀態管理
 import Link from "next/link"; // Next.js 的路由連結元件
-import Image from "next/image"; // Next.js 圖片元件，自動處理解析度最佳化
 import type { Session, SessionRound, Case } from "@/lib/types"; // 引入型別定義
 
 
@@ -35,12 +34,7 @@ export function HistorySessionView({
    <div className="relative min-h-screen bg-[#f5e6d3] px-12 py-8 flex flex-col gap-6">
 
 
-     {/* 故事卡按鈕：絕對定位，可自由調整 top/right */}
-     <button className="absolute top-[7.8%] right-[9.8%] bg-[#f0c840] text-[#1a1a1a] rounded-xl px-5 py-2 text-[18px] font-medium flex items-center gap-2 hover:bg-[#e0b830] transition-colors">
-       <Image src="/image/Polaroid camera.png" alt="故事卡" width={24} height={25} />
-       故事卡
-     </button>
-
+ 
 
      {/* ── 頁首：返回箭頭 + 個案資料文字 ── */}
      <Link
