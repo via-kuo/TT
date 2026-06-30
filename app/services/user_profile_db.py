@@ -51,11 +51,12 @@ class DBUserProfileClient:
             "user_id": str(patient.id),
             "name": patient.name,
             "birth_year": patient.birth_year,
-            "birth_place": patient.hometown or "",     # DB: hometown → mock: birth_place
-            "main_occupation": patient.occupation,       # DB: occupation → mock: main_occupation
+            "birth_place": patient.hometown or "",
+            "main_occupation": patient.occupation,
             "taboos": taboos,
             "today_topic": today_topic,
             "topic_category": [today_topic],
+            "preferences": patient.preferences or "",   
         }
     
     async def close(self):
