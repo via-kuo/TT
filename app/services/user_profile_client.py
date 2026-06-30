@@ -41,6 +41,7 @@ class UserProfile(TypedDict):
     preferences: Preferences
     taboos: list[str]
     today_topic: str
+    topic_category: list[str]  # 對應懷舊療法16大主題，供 DPO prompt 使用
 
 
 class UserProfileClient(Protocol):
@@ -75,6 +76,7 @@ class MockUserProfileClient:
             },
             "taboos": ["二兒子車禍"],
             "today_topic": "運動會",
+            "topic_category": ["休閒", "童年經歷", "自我成就感"],
         },
         "user_002": {
             "user_id": "user_002",
@@ -93,6 +95,7 @@ class MockUserProfileClient:
             },
             "taboos": [],
             "today_topic": "童年放學",
+            "topic_category": ["童年經歷", "讀書求學"],
         },
     }
 

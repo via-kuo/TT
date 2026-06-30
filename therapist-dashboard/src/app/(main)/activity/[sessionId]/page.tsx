@@ -37,5 +37,5 @@ export default function ActivityPage({ params }: { params: Promise<{ sessionId: 
     return <HistorySessionView session={session} caseData={caseData} rounds={rounds} />;
   }
 
-  return <LiveSessionView />;
+  return <LiveSessionView sessionId={sessionId} />;
 }

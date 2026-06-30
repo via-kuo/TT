@@ -1,7 +1,9 @@
 # brain.py
-# brain.py
 import os
+from dotenv import load_dotenv
 from langchain_qdrant import QdrantVectorStore
+
+load_dotenv()
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from langchain_ollama import ChatOllama, OllamaEmbeddings
@@ -9,11 +11,10 @@ from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTempla
 from base_knowledge import KNOWLEDGE_BASE
 
 class ElderlyAI:
-    def __init__(self, model_name="llama3:8b-instruct-q4_K_M"):
-        self.model_name = model_name
-        # Temperature 設為 0.3，降低隨機性，防止模型亂跳語言
-        self.llm = ChatOllama(model=model_name, temperature=0.3)
-        self.embeddings = OllamaEmbeddings(model="bge-m3")
+    def __init__(self, model_name=None):
+        self.model_name = model_name or os.getenv("OLLAMA_MODEL", "llama3:8b-instruct-q4_K_M")
+        self.llm = ChatOllama(model=self.model_name, temperature=0.3)
+        self.embeddings = OllamaEmbeddings(model=os.getenv("EMBEDDING_MODEL", "bge-m3"))
         self.turn_count = 0
         
         self.time_info = {
@@ -23,9 +24,11 @@ class ElderlyAI:
             4: {"name": "晚上", "sense": "靜謐的月光、家人的低聲細語"}
         }
 
-        if os.path.exists("./qdrant_db"):
-            client = QdrantClient(path="./qdrant_db")
-            self.db = QdrantVectorStore(client=client, collection_name="elderly_memories", embedding=self.embeddings)
+        qdrant_path = os.getenv("QDRANT_PATH", "./qdrant_db")
+        qdrant_collection = os.getenv("QDRANT_COLLECTION", "elderly_memories")
+        if os.path.exists(qdrant_path):
+            client = QdrantClient(path=qdrant_path)
+            self.db = QdrantVectorStore(client=client, collection_name=qdrant_collection, embedding=self.embeddings)
         else:
             self.db = None
 
