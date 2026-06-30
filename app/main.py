@@ -9,7 +9,7 @@ from db.session import engine
 from db.models import Base
 from services.llm import LLMService
 from services.stt import STTService
-from services.user_profile_client import MockUserProfileClient
+from services.user_profile_db import DBUserProfileClient
 from services.image import StabilityImageService
 from services.rag_client import MockRAGClient
 from privacy.deidentifier import Deidentifier
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     app.state.redis              = aioredis.from_url(settings.redis_url, decode_responses=True)
     app.state.llm_service        = LLMService()
     app.state.stt_service        = STTService()
-    app.state.user_profile       = MockUserProfileClient()
+    app.state.user_profile       = DBUserProfileClient()
     app.state.deidentifier       = Deidentifier()
     app.state.image_service      = StabilityImageService()
     app.state.rag_client         = MockRAGClient()
