@@ -1,10 +1,10 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { mockSessions, mockSessionRounds, mockCases } from "@/lib/mock-data";
+import type { Session, SessionRound, Case } from "@/lib/types";
 
 const ROUND_LABELS = ["一", "二", "三"];
 
@@ -15,13 +15,26 @@ export default function RoundDetailPage({
 }) {
   const { sessionId, roundNumber } = use(params);
   const router = useRouter();
+  const [session, setSession] = useState<Session | null>(null);
+  const [caseData, setCaseData] = useState<Case | null>(null);
+  const [rounds, setRounds] = useState<SessionRound[]>([]);
 
-  const session = mockSessions.find((s) => s.id === sessionId) ?? null;
-  const caseData = session ? (mockCases.find((c) => c.id === session.caseId) ?? null) : null;
-  const rounds = mockSessionRounds.filter(
-    (r) => r.sessionId === sessionId && r.type === "回合"
-  );
   const currentRoundNum = parseInt(roundNumber);
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`/api/sessions/${sessionId}`).then((res) => res.ok ? res.json() : null),
+      fetch(`/api/sessions/${sessionId}/rounds`).then((res) => res.ok ? res.json() : []),
+    ]).then(async ([sessionData, roundsData]) => {
+      if (sessionData) {
+        setSession(sessionData);
+        setRounds((roundsData as SessionRound[]).filter((r) => r.type === "回合"));
+        const caseRes = await fetch(`/api/cases/${sessionData.caseId}`);
+        if (caseRes.ok) setCaseData(await caseRes.json());
+      }
+    });
+  }, [sessionId]);
+
   const currentRound = rounds.find((r) => r.roundNumber === currentRoundNum) ?? null;
 
   if (!session || !caseData || !currentRound) return null;
@@ -78,9 +91,9 @@ export default function RoundDetailPage({
             <Image
               src={currentRound.sceneImage}
               alt={currentRound.sceneName}
-              width={625}
-              height={625}
-              className="max-w-full h-auto"
+              width={600}
+              height={600}
+              className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#888] text-[16px]">

@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
@@ -10,7 +10,7 @@ const CRITERIA = [
  { name: "參與度",  options: ["干擾", "被動需提醒", "鼓勵下可配合", "主動參與"] },
  { name: "注意力",  options: ["表現差", "需不斷提醒", "經提醒可配合", "表現佳"] },
  { name: "持續力",  options: ["擅自離開", "需不斷提醒", "經提醒可配合", "表現佳"] },
- { name: "情緒狀況", options: ["低落", "焦躁", "亢奮", "適當"] },
+ { name: "情緒狀況", options: ["低落", "焦躁", "抗奮", "適當"] },
  { name: "互動頻率", options: ["無互動", "僅指令回應", "需引導互動", "主動互動"] },
 ];
 
@@ -25,19 +25,6 @@ export default function SessionEndPage() {
  const [scores, setScores] = useState<number[]>(DEFAULT_SCORES);
  const [notes, setNotes] = useState("");
  const [isEditing, setIsEditing] = useState(false);
- const containerRef = useRef<HTMLDivElement>(null);
-
- useEffect(() => {
-   const isDesktop = window.matchMedia("(pointer: fine)").matches;
-   if (isDesktop) {
-     document.body.classList.add("overflow-hidden");
-     containerRef.current?.classList.add("fixed", "inset-0", "overflow-hidden");
-     return () => {
-       document.body.classList.remove("overflow-hidden");
-       containerRef.current?.classList.remove("fixed", "inset-0", "overflow-hidden");
-     };
-   }
- }, []);
 
  const total = scores.reduce((sum, s) => sum + (s + 1), 0);
  const maxScore = CRITERIA.length * 4;
@@ -48,7 +35,7 @@ export default function SessionEndPage() {
  }
 
  return (
-   <div ref={containerRef} className="min-h-screen bg-[#f5e6d3] px-4 md:px-[8%] lg:px-[10%] 2xl:px-[12%] pt-3 md:pt-8 xl:pt-16 2xl:pt-20 pb-3 md:pb-5 lg:pb-6 flex flex-col gap-1.5 md:gap-2">
+   <div className="fixed inset-0 bg-[#f5e6d3] px-4 md:px-[8%] lg:px-[10%] 2xl:px-[12%] pt-3 md:pt-8 xl:pt-16 2xl:pt-20 pb-3 md:pb-5 lg:pb-6 flex flex-col gap-1.5 md:gap-2 overflow-hidden">
 
      {/* 頁首：標題 + 編輯按鈕 */}
      <div className="flex items-start justify-between">

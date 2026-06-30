@@ -3,15 +3,17 @@
 
 import { useState } from "react"; // React 狀態管理
 import Link from "next/link"; // Next.js 的路由連結元件
+import Image from "next/image"; // Next.js 圖片元件，自動處理解析度最佳化
 import type { Session, SessionRound, Case } from "@/lib/types"; // 引入型別定義
 
 
-// 情緒文字對應的顏色（適當 → 綠色，亢奮 → 紅色，焦躁 → 黃色，低落 → 灰色）
+// 情緒文字對應的顏色（正向/穩定 → 綠色，激動 → 紅色，焦慮 → 黃色，沉默 → 灰色）
 const EMOTION_DOT: Record<string, string> = {
- 適當: "#34c759",
- 亢奮: "#fb2c36",
- 焦躁: "#f0c52c",
- 低落: "#888888",
+ 正向: "#34c759",
+ 穩定: "#34c759",
+ 激動: "#fb2c36",
+ 焦慮: "#f0c52c",
+ 沉默: "#888888",
 };
 
 
@@ -32,6 +34,12 @@ export function HistorySessionView({
    // 整頁背景：米色，左右內距 48px，上下 32px，垂直排列，間距 24px
    <div className="relative min-h-screen bg-[#f5e6d3] px-12 py-8 flex flex-col gap-6">
 
+
+     {/* 故事卡按鈕：絕對定位，可自由調整 top/right */}
+     <button className="absolute top-[7.8%] right-[9.8%] bg-[#f0c840] text-[#1a1a1a] rounded-xl px-5 py-2 text-[18px] font-medium flex items-center gap-2 hover:bg-[#e0b830] transition-colors">
+       <Image src="/image/Polaroid camera.png" alt="故事卡" width={24} height={25} />
+       故事卡
+     </button>
 
 
      {/* ── 頁首：返回箭頭 + 個案資料文字 ── */}
@@ -129,16 +137,18 @@ export function HistorySessionView({
              </div>
 
 
-             {/* 右側：情緒指示燈 + 查看按鈕 */}
+             {/* 右側：情緒指示燈 + 查看按鈕（僅第一筆） */}
              <div className="flex items-center gap-5">
+
 
                {/* 彩色圓點 + 情緒文字 */}
                <span className="text-[14px] font-medium flex items-center gap-1.5" style={{ color: dotColor }}>
-                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: dotColor }} />
-                 {round.emotion}
+                 <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: dotColor }} /> {/* 情緒顏色圓點 */}
+                 {round.emotion} {/* 情緒文字（正向、穩定…） */}
                </span>
 
-               {/* 心得欄：開啟心得彈窗 */}
+
+               {/* 只有第一筆（心得欄）顯示查看按鈕，點擊開啟心得彈窗 */}
                {idx === 0 && (
                  <button
                    onClick={() => setShowModal(true)}
@@ -146,16 +156,6 @@ export function HistorySessionView({
                  >
                    查看 ›
                  </button>
-               )}
-
-               {/* 回合列：連結至回合問答紀錄頁 */}
-               {round.type === "回合" && (
-                 <Link
-                   href={`/activity/${session.id}/round/${round.roundNumber}`}
-                   className="text-[14px] font-medium text-[#5b8ac5] hover:text-[#3a6aa0] transition-colors"
-                 >
-                   查看 ›
-                 </Link>
                )}
              </div>
            </div>

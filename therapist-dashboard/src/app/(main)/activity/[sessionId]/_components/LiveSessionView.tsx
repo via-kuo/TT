@@ -1,15 +1,15 @@
 "use client";
 
 
-import { useState, Fragment, useEffect, useRef } from "react";
+import { useState, Fragment, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { mockActiveSession } from "@/lib/mock-data";
 
 
 const EMOTION_COLORS: Record<string, string> = {
  適當: "#34c759",
- 亢奮: "#fb2c36",
- 焦躁: "#f0c52c",
+ 亢奮: "#f0c52c",
+ 焦躁: "#fb2c36",
  低落: "#888888",
 };
 
@@ -29,18 +29,12 @@ export function LiveSessionView() {
 
  const router = useRouter();
  const [showConfirm, setShowConfirm] = useState(false);
- const containerRef = useRef<HTMLDivElement>(null);
 
 
  useEffect(() => {
-   const isDesktop = window.matchMedia("(pointer: fine)").matches;
-   if (isDesktop) {
+   if (window.innerWidth >= 1024) {
      document.body.classList.add("overflow-hidden");
-     containerRef.current?.classList.add("h-screen", "overflow-hidden");
-     return () => {
-       document.body.classList.remove("overflow-hidden");
-       containerRef.current?.classList.remove("h-screen", "overflow-hidden");
-     };
+     return () => document.body.classList.remove("overflow-hidden");
    }
  }, []);
 
@@ -50,7 +44,7 @@ export function LiveSessionView() {
 
 
  return (
-   <div ref={containerRef} className="min-h-screen bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[3vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-2 lg:gap-4 xl:gap-5">
+   <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#f5e6d3] px-4 md:px-6 lg:px-8 xl:px-14 pt-3 md:pt-[3vh] lg:pt-[3vh] xl:pt-[4vh] 2xl:pt-[9vh] pb-4 flex flex-col gap-2 md:gap-2 lg:gap-4 xl:gap-5" >
 
 
      {/* 標題 + 回合追蹤 */}
