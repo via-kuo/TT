@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import type { Case, Session } from "@/lib/types";
 
 const RATING_COLOR: Record<string, string> = {
-  優良: "#4caf7d",
-  普通: "#e09540",
-  需加強: "#e05c3a",
+  適當: "#4caf7d",
+  亢奮: "#e09540",
+  焦躁: "#e09540",
+  低落: "#e05c3a",
 };
 
 const inputClass =
@@ -248,7 +249,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               <div className="flex flex-col gap-3 mt-2">
                 <h2 className="text-[22px] font-bold text-[#e05c3a]">最近療程</h2>
                 {recentSessions.map((s, idx) => {
-                  const pct = s.score != null ? s.score : 0;
+                  const pct = s.score != null ? Math.round((s.score / (s.totalScore ?? 20)) * 100) : 0;
                   const color = RATING_COLOR[s.rating ?? ""] ?? "#888";
                   return (
                     <div key={s.id} className="bg-white rounded-xl px-6 py-4 flex items-center justify-between">

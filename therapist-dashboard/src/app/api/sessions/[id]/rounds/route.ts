@@ -15,6 +15,16 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     ORDER BY round_number ASC
   `;
 
+  const roundIds = rounds.map(r => r.id as number);
+  const exchanges = roundIds.length > 0
+    ? await sql`
+        SELECT id, round_id, question_number, question, answer
+        FROM round_exchanges
+        WHERE round_id = ANY(${sql.array(roundIds)})
+        ORDER BY round_id, question_number ASC
+      `
+    : [];
+
   return NextResponse.json(rounds.map(r => ({
     id: r.id.toString(),
     sessionId: id,
@@ -25,6 +35,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     content: r.patient_response ?? "",
     emotion: r.emotion ?? "—",
     sceneImage: null,
-    exchanges: [],
+    exchanges: exchanges
+      .filter(e => e.round_id === r.id)
+      .map(e => ({
+        questionNumber: e.question_number,
+        question: e.question,
+        answer: e.answer ?? "",
+      })),
   })));
 }

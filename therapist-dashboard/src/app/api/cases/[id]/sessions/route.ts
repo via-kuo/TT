@@ -2,13 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
 import { getSession } from "@/lib/session";
 
-function getRating(totalScore: number | null): string {
-  if (totalScore === null || totalScore === undefined) return "—";
-  if (totalScore >= 80) return "優良";
-  if (totalScore >= 60) return "普通";
-  return "需加強";
-}
-
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "未登入" }, { status: 401 });
@@ -23,6 +16,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       s.mode,
       s.total_score,
       s.story_summary,
+      s.emotional_status,
       (SELECT COUNT(*)::int FROM sessions s2
         WHERE s2.patient_id = s.patient_id AND s2.id <= s.id) AS session_number,
       (SELECT COUNT(*)::int FROM rounds r WHERE r.session_id = s.id) AS rounds_count,
@@ -42,11 +36,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     sessionNumber: s.session_number,
     rounds: s.rounds_count,
     score: s.total_score,
-    totalScore: 100,
+    totalScore: 20,
     averageResponseTime: s.avg_response_time != null ? `${s.avg_response_time} 秒` : "—",
     overallEmotion: s.overall_emotion ?? "—",
     storySummary: s.story_summary ?? "",
-    rating: getRating(s.total_score),
+    rating: s.emotional_status ?? "—",
     mode: s.mode,
   })));
 }
