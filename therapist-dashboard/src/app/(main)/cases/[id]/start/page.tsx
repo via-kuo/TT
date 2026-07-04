@@ -228,7 +228,7 @@ export default function StartSessionPage({ params }: { params: Promise<{ id: str
           {status === "connected" && (
             <button
               type="button"
-              onClick={() => router.push("/activity/s-live-1")}
+              onClick={() => router.push(`/activity/s-live-1?caseId=${caseId}`)}
               className="flex-1 bg-[#5b8ac5] text-white text-[17px] font-semibold rounded-2xl py-4"
             >
               啟動療程

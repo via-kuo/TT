@@ -19,7 +19,7 @@ const EMOTION_COLORS: Record<string, string> = {
 type View = "scene" | "response";
 
 
-export function LiveSessionView({ sessionId }: { sessionId: string }) {
+export function LiveSessionView({ sessionId, caseId }: { sessionId: string; caseId?: string }) {
  const [session, setSession] = useState<ActiveSession>({
    sessionId,
    caseId: "",
@@ -51,21 +51,26 @@ export function LiveSessionView({ sessionId }: { sessionId: string }) {
 
  // 從 API 取得個案資料（caseName、tabooTopics）
  useEffect(() => {
-   fetch(`/api/sessions/${sessionId}`)
-     .then((r) => r.json())
-     .then(async (s) => {
-       if (s.caseId) {
-         const c = await fetch(`/api/cases/${s.caseId}`).then((r) => r.json());
-         setSession((prev) => ({
-           ...prev,
-           caseId: s.caseId,
-           caseName: c.name ?? "",
-           tabooTopics: c.tabooTopics ?? [],
-         }));
-       }
-     })
-     .catch(() => {});
- }, [sessionId]);
+   const fetchCase = async (id: string) => {
+     const c = await fetch(`/api/cases/${id}`).then((r) => r.ok ? r.json() : null);
+     if (!c) return;
+     setSession((prev) => ({
+       ...prev,
+       caseId: id,
+       caseName: c.name ?? "",
+       tabooTopics: c.tabooTopics ?? [],
+     }));
+   };
+
+   if (caseId) {
+     fetchCase(caseId).catch(() => {});
+   } else {
+     fetch(`/api/sessions/${sessionId}`)
+       .then((r) => r.ok ? r.json() : null)
+       .then((s) => { if (s?.caseId) fetchCase(s.caseId); })
+       .catch(() => {});
+   }
+ }, [sessionId, caseId]);
 
  // 每 2 秒從後端 polling 情緒、反應時間與場景資訊
  useEffect(() => {
