@@ -101,8 +101,27 @@ export function LiveSessionView({ sessionId, caseId }: { sessionId: string; case
  }, [sessionId]);
 
 
- const handlePause = () => setSession((s) => ({ ...s, status: "paused" }));
- const handleResume = () => setSession((s) => ({ ...s, status: "running" }));
+ const sendControl = (action: string) =>
+   fetch(`${API_BASE}/session/${sessionId}/control`, {
+     method: "POST",
+     headers: { "Content-Type": "application/json" },
+     body: JSON.stringify({ action }),
+   }).catch(() => {});
+
+ const handleReplay = () => sendControl("replay_audio");
+ const handleSkip = () => sendControl("skip_scene");
+ const handlePause = () => {
+   setSession((s) => ({ ...s, status: "paused" }));
+   sendControl("pause");
+ };
+ const handleResume = () => {
+   setSession((s) => ({ ...s, status: "running" }));
+   sendControl("resume");
+ };
+ const handleEnd = async () => {
+   await sendControl("end");
+   router.push(`/activity/${sessionId}/end`);
+ };
 
 
  return (
@@ -243,12 +262,14 @@ export function LiveSessionView({ sessionId, caseId }: { sessionId: string; case
            <div className="grid grid-cols-2 gap-2 lg:gap-3 xl:gap-4">
              <button
                type="button"
+               onClick={handleReplay}
                className="bg-white border border-[#d1d5dc] rounded-xl py-2.5 lg:py-4 xl:py-5 text-[12px] md:text-[14px] lg:text-[18px] font-medium text-[#0a0a0a] hover:bg-[#f5f5f5] transition-colors"
              >
                重播語音
              </button>
              <button
                type="button"
+               onClick={handleSkip}
                className="bg-white border border-[#d1d5dc] rounded-xl py-2.5 lg:py-4 xl:py-5 text-[12px] md:text-[14px] lg:text-[18px] font-medium text-[#0a0a0a] hover:bg-[#f5f5f5] transition-colors"
              >
                跳過此場景
@@ -300,7 +321,7 @@ export function LiveSessionView({ sessionId, caseId }: { sessionId: string; case
              </button>
              <button
                type="button"
-               onClick={() => router.push(`/activity/${sessionId}/end`)}
+               onClick={handleEnd}
                className="flex-1 bg-[#fb2c36] text-white rounded-xl py-3 xl:py-4 text-[14px] md:text-[16px] font-medium hover:bg-[#e0252e] transition-colors"
              >
                結束療程
