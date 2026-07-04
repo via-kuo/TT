@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "未登入" }, { status: 401 });
 
-  const { name, birthYear, birthPlace, career, family, hobbies, tabooTopics } = await req.json();
+  const { name, birthYear, birthPlace, career, family, hobbies, tabooTopics, avatar } = await req.json();
 
   if (!name) {
     return NextResponse.json({ error: "請填寫姓名" }, { status: 400 });
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   const tabooStr = Array.isArray(tabooTopics) ? tabooTopics.join("、") : (tabooTopics ?? "");
 
   const [newCase] = await sql`
-    INSERT INTO patients (organization_id, name, birth_year, hometown, occupation, family, preferences, taboo_words)
+    INSERT INTO patients (organization_id, name, birth_year, hometown, occupation, family, preferences, taboo_words, avatar)
     VALUES (
       ${session.organizationId},
       ${name},
@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
       ${career ?? ""},
       ${family ?? ""},
       ${hobbies ?? ""},
-      ${tabooStr}
+      ${tabooStr},
+      ${avatar ?? null}
     )
     RETURNING id
   `;
