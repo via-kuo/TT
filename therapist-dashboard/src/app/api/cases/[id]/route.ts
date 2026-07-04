@@ -16,6 +16,7 @@ function mapPatient(p: Record<string, unknown>) {
     family: p.family ?? "",
     hobbies: p.preferences ?? "",
     tabooTopics: p.taboo_words ? (p.taboo_words as string).split("、").filter(Boolean) : [],
+    avatar: p.avatar ?? null,
     avatarColor: AVATAR_COLORS[id % AVATAR_COLORS.length],
     totalSessions: p.total_sessions ?? 0,
     lastSession: p.last_session ?? "尚未開始",
@@ -35,7 +36,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const [p] = await sql`
     SELECT
       p.id, p.name, p.birth_year, p.hometown, p.occupation,
-      p.family, p.preferences, p.taboo_words,
+      p.family, p.preferences, p.taboo_words, p.avatar,
       (SELECT COUNT(*)::int FROM sessions s WHERE s.patient_id = p.id) AS total_sessions,
       (SELECT TO_CHAR(MAX(s.date), 'YYYY/MM/DD') FROM sessions s WHERE s.patient_id = p.id) AS last_session
     FROM patients p
@@ -70,7 +71,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const [p] = await sql`
     SELECT
       p.id, p.name, p.birth_year, p.hometown, p.occupation,
-      p.family, p.preferences, p.taboo_words,
+      p.family, p.preferences, p.taboo_words, p.avatar,
       (SELECT COUNT(*)::int FROM sessions s WHERE s.patient_id = p.id) AS total_sessions,
       (SELECT TO_CHAR(MAX(s.date), 'YYYY/MM/DD') FROM sessions s WHERE s.patient_id = p.id) AS last_session
     FROM patients p WHERE p.id = ${parseInt(id)}

@@ -113,12 +113,16 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
 
         {/* 個案標頭 */}
         <div className="flex items-center gap-4">
-          <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-[22px] font-medium text-[#666] shrink-0"
-            style={{ backgroundColor: caseData.avatarColor }}
-          >
-            {caseData.surname}
-          </div>
+          {caseData.avatar ? (
+            <img src={caseData.avatar} alt={caseData.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+          ) : (
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center text-[22px] font-medium text-[#666] shrink-0"
+              style={{ backgroundColor: caseData.avatarColor }}
+            >
+              {caseData.surname}
+            </div>
+          )}
           <div className="flex flex-col gap-0.5">
             <h1 className="text-[26px] font-bold text-[#1a1a1a]">{caseData.name}</h1>
             <p className="text-[13px] text-[#888]">
