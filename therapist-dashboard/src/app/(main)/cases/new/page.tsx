@@ -206,22 +206,13 @@ export default function NewCasePage() {
               選擇圖片
             </button>
 
-            {/* 確認按鈕 */}
+            {/* 完成按鈕 */}
             <button
               type="button"
-              onClick={() => { setAvatar(previewAvatar); setShowUploadModal(false); }}
-              className="w-full bg-[#5b8ac5] text-white rounded-xl py-3.5 text-[15px] font-medium hover:bg-[#3a6aa0] transition-colors"
-            >
-              確認
-            </button>
-
-            {/* 取消按鈕 */}
-            <button
-              type="button"
-              onClick={() => { setPreviewAvatar(avatar); setShowUploadModal(false); }}
+              onClick={() => { if (previewAvatar) setAvatar(previewAvatar); setShowUploadModal(false); }}
               className="w-full border border-[#d0d0d0] text-[#1a1a1a] rounded-xl py-3.5 text-[15px] font-medium hover:bg-[#f5f5f5] transition-colors"
             >
-              取消
+              完成
             </button>
           </div>
         </div>
