@@ -2,6 +2,32 @@ import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
 import { getSession } from "@/lib/session";
 
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "未登入" }, { status: 401 });
+
+  const { id } = await params;
+  const {
+    totalScore, emotionalStatus, notes,
+    scoreParticipation, scoreAttention, scoreEndurance, scoreEmotion, scoreInteraction,
+  } = await req.json();
+
+  await sql`
+    UPDATE sessions SET
+      total_score          = ${totalScore ?? null},
+      emotional_status     = ${emotionalStatus ?? null},
+      therapist_note       = ${notes ?? null},
+      score_participation  = ${scoreParticipation ?? null},
+      score_attention      = ${scoreAttention ?? null},
+      score_endurance      = ${scoreEndurance ?? null},
+      score_emotion        = ${scoreEmotion ?? null},
+      score_interaction    = ${scoreInteraction ?? null}
+    WHERE id = ${parseInt(id)}
+  `;
+
+  return NextResponse.json({ ok: true });
+}
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "未登入" }, { status: 401 });
